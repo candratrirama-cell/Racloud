@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaCloud - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-[#f0f9ff]">
+    <nav class="p-6 flex justify-between items-center max-w-6xl mx-auto w-full">
+        <div class="text-sky-600 font-extrabold text-2xl italic tracking-tighter"><i class="fas fa-cloud"></i> RaCloud</div>
+        <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="text-green-600 font-bold text-xs bg-green-50 px-4 py-2 rounded-full border border-green-100">Komunitas</a>
+    </nav>
+    <main class="flex flex-col items-center justify-center text-center px-6 mt-20">
+        <h1 class="text-5xl font-extrabold text-slate-900 mb-6 leading-tight tracking-tighter">Kelola Saldo <br><span class="text-sky-600">Tanpa Batas</span></h1>
+        <p class="text-slate-400 mb-10 max-w-xs font-medium">Platform ekosistem digital aman dengan integrasi cloud otomatis.</p>
+        <div class="flex flex-col gap-4 w-full max-w-xs">
+            <button onclick="window.location.href='login.html'" class="bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">Mulai Sekarang</button>
+        </div>
+    </main>
+
+    <script>
+        // Security Check
+        if(sessionStorage.getItem('ra_access_granted') !== 'true') window.location.href = 'index.html';
+    </script>
+</body>
+</html>
