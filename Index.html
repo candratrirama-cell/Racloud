@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaCloud - Secure Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f9ff; font-family: 'sans-serif'; overflow: hidden; }
+        .cloud-loader { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-6">
+    <div class="text-center">
+        <div class="cloud-loader text-sky-600 text-6xl mb-6">
+            <i class="fas fa-cloud-shield"></i>
+        </div>
+        <h1 class="text-2xl font-black italic text-slate-800 tracking-tighter">RA CLOUD SECURITY</h1>
+        <p class="text-slate-400 text-xs font-bold mt-2 uppercase tracking-widest">Checking your connection...</p>
+        
+        <div class="mt-8 w-48 h-1.5 bg-slate-200 rounded-full mx-auto overflow-hidden">
+            <div id="progress" class="h-full bg-sky-600 transition-all duration-[5000ms] ease-linear" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <script>
+        // Set Security Token untuk Cloudflare & Referrer Check
+        sessionStorage.setItem('ra_access_granted', 'true');
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const bar = document.getElementById('progress');
+            setTimeout(() => bar.style.width = '100%', 100);
+
+            // Redirect ke Landing setelah 5 detik
+            setTimeout(() => {
+                window.location.href = 'landing.html';
+            }, 5500);
+        });
+    </script>
+</body>
+</html>
