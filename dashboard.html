@@ -24,7 +24,7 @@
         <div id="lock-icon" class="w-24 h-24 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg"></div>
         <h1 id="lock-title" class="text-3xl font-black text-slate-900 mb-2 uppercase italic"></h1>
         <p id="lock-desc" class="text-slate-500 max-w-xs mb-8 font-medium"></p>
-        <a href="https://chat.whatsapp.com" class="bg-sky-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl">Hubungi Admin</a>
+        <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="bg-sky-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl">Hubungi Admin</a>
     </div>
 
     <div id="page-setup">
@@ -32,9 +32,9 @@
             <i class="fas fa-store"></i>
         </div>
         <h2 class="text-2xl font-black text-slate-900 mb-2 italic uppercase">SETUP MERCHANT</h2>
-        <p class="text-slate-400 text-sm mb-8 max-w-xs">Masukkan nama toko atau namamu untuk ditampilkan pada QRIS pembayaran.</p>
+        <p class="text-slate-400 text-sm mb-8 max-w-xs font-medium">Masukkan nama toko atau namamu untuk ditampilkan di QRIS pembayaran.</p>
         <div class="w-full max-w-xs">
-            <input type="text" id="setup-merchant-name" placeholder="Contoh: TOKO RAMA" class="w-full p-4 rounded-2xl bg-slate-50 mb-4 outline-none font-bold text-sky-700 border-2 border-slate-100 text-center uppercase">
+            <input type="text" id="setup-merchant-name" placeholder="CONTOH: RAMA STORE" class="w-full p-4 rounded-2xl bg-slate-50 mb-4 outline-none font-bold text-sky-700 border-2 border-slate-100 text-center uppercase">
             <button onclick="saveMerchantName()" class="w-full bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">SIMPAN & MASUK</button>
         </div>
     </div>
@@ -87,26 +87,32 @@
                     </button>
                 </div>
 
-                <div id="tab-depo" class="tab-content glass p-6 rounded-[35px] mb-8">
-                    <canvas id="qris-canvas" class="w-full rounded-2xl mb-6 shadow-md border-4 border-white"></canvas>
+                <div id="tab-depo" class="tab-content glass p-6 rounded-[35px] mb-8 border-2 border-white shadow-lg">
+                    <canvas id="qris-canvas" class="w-full rounded-2xl mb-6 shadow-md border-2 border-slate-100"></canvas>
                     
-                    <input type="number" id="d-amt" placeholder="Nominal" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-sky-700 border border-slate-100 text-center">
+                    <a href="https://i.ibb.co.com/bRJWY5KL/Tak-berjudul34-20260413183523.jpg" target="_blank" class="block w-full py-4 mb-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-2xl text-[10px] font-black text-center uppercase tracking-tighter italic active:scale-95 transition-all">
+                        <i class="fas fa-image mr-1"></i> Lihat Contoh Bukti Transaksi Wajib
+                    </a>
+
+                    <input type="number" id="d-amt" placeholder="Nominal Isi Saldo" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-sky-700 border border-slate-100 text-center">
+                    
                     <div class="bg-white p-5 rounded-2xl border-2 border-dashed border-sky-100 text-center mb-5">
                         <p class="text-[10px] font-black text-sky-400 mb-2 italic uppercase">Upload Bukti Transfer</p>
                         <input type="file" id="d-file" accept="image/*" class="text-[10px] text-slate-400">
                     </div>
-                    <button id="d-btn" onclick="handleDepo()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg">Kirim Laporan</button>
+                    
+                    <button id="d-btn" onclick="handleDepo()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg shadow-sky-100 active:scale-95 transition-all">Kirim Laporan</button>
                 </div>
 
                 <div id="tab-wd" class="tab-content glass p-6 rounded-[35px] mb-8">
-                    <input type="text" id="w-phone" placeholder="Nomor DANA" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-center">
-                    <input type="number" id="w-amt" placeholder="Nominal WD" class="w-full p-4 rounded-2xl bg-slate-50 mb-5 outline-none font-bold text-center">
-                    <button onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold uppercase text-xs tracking-widest">Proses WD</button>
+                    <input type="text" id="w-phone" placeholder="Nomor DANA (08...)" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-center">
+                    <input type="number" id="w-amt" placeholder="Nominal Penarikan" class="w-full p-4 rounded-2xl bg-slate-50 mb-5 outline-none font-bold text-center">
+                    <button onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold uppercase text-xs tracking-widest active:scale-95 transition-all">Proses WD</button>
                 </div>
 
                 <div class="glass p-6 rounded-[35px]">
                     <h4 class="font-black text-slate-800 mb-6 uppercase text-xs italic tracking-widest">Riwayat Aktivitas</h4>
-                    <div id="h-list" class="space-y-4"></div>
+                    <div id="h-list" class="space-y-4 max-h-[400px] overflow-y-auto"></div>
                 </div>
             </div>
         </div>
@@ -143,7 +149,7 @@
             if(!active) el.classList.add('active');
         };
 
-        // LOGIN & MERCHANT CHECK
+        // AUTH & MERCHANT CHECK
         document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
 
         onAuthStateChanged(auth, async u => {
@@ -152,6 +158,7 @@
                 const snap = await get(userRef);
                 const userData = snap.val();
 
+                // Jika user baru / belum ada nama merchant
                 if(!userData || !userData.merchantName) {
                     document.getElementById('app-body').style.display = 'none';
                     document.getElementById('page-setup').style.display = 'flex';
@@ -168,7 +175,7 @@
 
         window.saveMerchantName = async () => {
             const name = document.getElementById('setup-merchant-name').value.toUpperCase();
-            if(name.length < 3) return alert("Nama Merchant terlalu pendek!");
+            if(name.length < 3) return alert("Nama Merchant minimal 3 karakter!");
             
             const u = auth.currentUser;
             await update(ref(db, `users/${u.uid}`), {
@@ -180,55 +187,55 @@
             location.reload();
         };
 
-        // QRIS CANVAS GENERATOR (GPN STYLE)
+        // QRIS CANVAS GENERATOR (GPN COLORFUL STYLE)
         function drawQRIS(merchantName) {
             const cv = document.getElementById('qris-canvas');
             const cx = cv.getContext('2d');
             const qrImg = new Image();
             qrImg.crossOrigin = "anonymous";
-            qrImg.src = "https://i.ibb.co.com/39M4CcTD/1776079336915-1.jpg"; // QR Base
+            qrImg.src = "https://i.ibb.co.com/7d4MhQtf/1776079336915-1.jpg"; // Link QRIS Baru
 
             qrImg.onload = () => {
                 cv.width = 1000;
-                cv.height = 1300;
+                cv.height = 1350;
 
-                // Background & Header Color (GPN Blue)
+                // 1. Background White
                 cx.fillStyle = "#ffffff";
-                cx.fillRect(0,0, cv.width, cv.height);
+                cx.fillRect(0, 0, cv.width, cv.height);
 
-                // Draw QR Image
-                cx.drawImage(qrImg, 50, 250, 900, 900);
-
-                // Top Banner GPN
+                // 2. Header Box (GPN Blue)
                 cx.fillStyle = "#1e3a8a";
-                cx.fillRect(0, 0, cv.width, 220);
+                cx.fillRect(0, 0, cv.width, 240);
 
-                // Merchant Name (Big & Bold)
+                // 3. Nama Merchant (Center Header)
                 cx.fillStyle = "white";
-                cx.font = "900 60px 'Plus Jakarta Sans'";
+                cx.font = "900 65px 'Plus Jakarta Sans'";
                 cx.textAlign = "center";
                 cx.fillText(merchantName, cv.width/2, 110);
 
                 cx.font = "600 30px sans-serif";
-                cx.fillText("NMID : ID1020304050607", cv.width/2, 170);
+                cx.fillText("NMID : ID202604149999", cv.width/2, 175);
 
-                // Accent Colors (GPN Style: Red, Yellow, Blue)
-                const colors = ["#ef4444", "#eab308", "#3b82f6"];
+                // 4. Garis Warna GPN (Red, Yellow, Cyan)
+                const colors = ["#ef4444", "#fbbf24", "#06b6d4"];
                 colors.forEach((color, i) => {
                     cx.fillStyle = color;
-                    cx.fillRect(i * (cv.width/3), 210, cv.width/3, 15);
+                    cx.fillRect(i * (cv.width/3), 225, cv.width/3, 15);
                 });
 
-                // Footer
-                cx.fillStyle = "#f1f5f9";
-                cx.fillRect(0, 1180, cv.width, 120);
-                cx.fillStyle = "#64748b";
-                cx.font = "bold 30px sans-serif";
-                cx.fillText("DICETAK OTOMATIS OLEH RA CLOUD", cv.width/2, 1250);
+                // 5. Drawing the main QR Code Image
+                cx.drawImage(qrImg, 50, 280, 900, 900);
+
+                // 6. Footer Decoration
+                cx.fillStyle = "#f8fafc";
+                cx.fillRect(0, 1220, cv.width, 130);
+                
+                cx.fillStyle = "#94a3b8";
+                cx.font = "bold 28px sans-serif";
+                cx.fillText("POWERED BY RA CLOUD - AUTOMATION", cv.width/2, 1300);
             };
         }
 
-        // SYNC & TRANSACTION LOGIC (Same as before)
         function sync(uid) {
             onValue(ref(db, `users/${uid}/balance`), s => { 
                 uBal = s.val() || 0; 
@@ -239,36 +246,37 @@
                 let arr = [];
                 snap.forEach(c => { if(c.val().uid === uid) arr.push(c.val()); });
                 arr.reverse().forEach(d => {
-                    list.insertAdjacentHTML('beforeend', `<div class="p-4 bg-white rounded-2xl shadow-sm border border-slate-100 flex justify-between">
-                        <div><p class="text-[10px] font-bold uppercase">${d.type}</p><p class="text-[8px] text-slate-400">${new Date(d.time).toLocaleTimeString()}</p></div>
-                        <p class="font-black ${d.status==='success'?'text-green-500':'text-orange-400'}">Rp${d.amount.toLocaleString()}</p>
-                    </div>`);
+                    list.insertAdjacentHTML('beforeend', `
+                        <div class="p-4 bg-white rounded-2xl shadow-sm border border-slate-50 flex justify-between items-center">
+                            <div><p class="text-[10px] font-black uppercase text-slate-800 tracking-widest">${d.type}</p><p class="text-[8px] font-bold text-slate-300 mt-1">${new Date(d.time).toLocaleString()}</p></div>
+                            <div class="text-right"><p class="font-black text-sm ${d.status==='success'?'text-green-500':'text-orange-400'}">Rp${d.amount.toLocaleString()}</p><p class="text-[8px] font-bold uppercase text-slate-300">${d.status}</p></div>
+                        </div>`);
                 });
             });
         }
 
         window.handleDepo = async () => {
             const amt = document.getElementById('d-amt').value, fl = document.getElementById('d-file').files[0];
-            if(!amt || !fl) return alert("Lengkapi data!");
+            if(!amt || !fl) return alert("Nominal dan Bukti Transfer wajib diisi!");
+            const btn = document.getElementById('d-btn'); btn.disabled = true; btn.innerText = "MENGIRIM...";
             const reader = new FileReader(); reader.readAsDataURL(fl);
             reader.onload = async () => {
-                await set(push(ref(db, 'transactions')), { 
-                    uid: auth.currentUser.uid, 
-                    amount: parseInt(amt), 
-                    proof: reader.result, 
-                    status: 'pending', 
-                    type: 'depo', 
-                    time: Date.now() 
-                });
-                alert("Laporan dikirim!");
+                await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, amount: parseInt(amt), proof: reader.result, status: 'pending', type: 'depo', time: Date.now() });
+                alert("Deposit berhasil dikirim!"); location.reload();
             };
         };
 
-        window.logoutAllDevices = async () => {
-            await remove(ref(db, `users/${auth.currentUser.uid}/sessions`));
-            await signOut(auth); location.reload();
+        window.handleWD = async () => {
+            const amt = parseInt(document.getElementById('w-amt').value), ph = document.getElementById('w-phone').value;
+            if(!amt || amt < 1000 || amt > uBal || !ph) return alert("Saldo tidak cukup atau data belum lengkap!");
+            await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, amount: amt, phone: ph, status: 'pending', type: 'wd', time: Date.now() });
+            alert("Penarikan sedang diproses!"); location.reload();
         };
 
+        window.logoutAllDevices = async () => {
+            if(!confirm("Keluarkan semua perangkat?")) return;
+            await signOut(auth); location.reload();
+        };
     </script>
 </body>
 </html>
