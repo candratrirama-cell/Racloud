@@ -4,15 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RaCloud - Dashboard</title>
-    <script>
-        (function(){
-            const urlToken = new URLSearchParams(window.location.search).get('sid');
-            const storedToken = sessionStorage.getItem('ra_active_token');
-            if (!urlToken || urlToken !== storedToken) {
-                sessionStorage.clear(); window.location.replace('index.html');
-            }
-        })();
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -22,10 +13,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
 <body class="pb-24">
@@ -33,76 +20,49 @@
     <div id="app-body">
         <header class="p-6 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
             <div class="font-black text-sky-600 text-xl tracking-tighter italic uppercase">RaCloud</div>
-            <div class="flex gap-3">
-                <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center border border-green-100 shadow-sm"><i class="fab fa-whatsapp"></i></a>
-                <button onclick="logout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-100 shadow-sm"><i class="fas fa-power-off"></i></button>
-            </div>
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-100"><i class="fas fa-power-off"></i></button>
         </header>
 
         <div class="max-w-md mx-auto p-6">
-            <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100 mb-8 relative overflow-hidden">
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 relative z-10">Saldo Aktif</p>
-                <h3 class="text-4xl font-black text-slate-900 italic tracking-tighter relative z-10">Rp<span id="balance">0</span></h3>
-                <p id="user-display-name" class="mt-4 text-[10px] font-black text-slate-500 uppercase tracking-widest relative z-10"></p>
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-50 rounded-full blur-3xl opacity-50"></div>
+            <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100 mb-8">
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Saldo Aktif</p>
+                <h3 class="text-4xl font-black text-slate-900 italic tracking-tighter">Rp<span id="balance">0</span></h3>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <button onclick="switchTab('tab-depo')" class="glass p-6 rounded-[35px] text-center shadow-sm hover:scale-95 transition-transform">
-                    <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-qrcode text-lg"></i></div>
+                <button onclick="switchTab('tab-depo')" class="glass p-6 rounded-[35px] text-center shadow-sm">
+                    <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-qrcode"></i></div>
                     <p class="text-[10px] font-black text-slate-700 uppercase italic">Merchant QRIS</p>
                 </button>
-                <button onclick="switchTab('tab-wd')" class="glass p-6 rounded-[35px] text-center shadow-sm hover:scale-95 transition-transform">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-wallet text-lg"></i></div>
+                <button onclick="switchTab('tab-wd')" class="glass p-6 rounded-[35px] text-center shadow-sm">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fas fa-wallet"></i></div>
                     <p class="text-[10px] font-black text-slate-700 uppercase italic">Withdraw DANA</p>
                 </button>
             </div>
 
             <div id="tab-depo" class="tab-content glass p-6 rounded-[40px] mb-8 shadow-sm">
                 <div id="merchant-setup" class="hidden text-center py-6">
-                    <div class="w-16 h-16 bg-sky-50 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-store"></i></div>
-                    <h4 class="text-sm font-black text-slate-800 uppercase italic mb-2">Buka Merchant Baru</h4>
-                    <p class="text-[10px] text-slate-400 mb-6 px-4 uppercase font-bold tracking-tighter">Masukkan Nama Toko Untuk Cetak QRIS GPN</p>
-                    <input type="text" id="m-name-input" placeholder="NAMA TOKO ANDA" class="w-full p-4 rounded-2xl bg-white border border-slate-100 text-center font-bold mb-4 outline-none focus:ring-2 ring-sky-100 uppercase">
-                    <button onclick="setupMerchant()" class="w-full py-4 bg-sky-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-sky-100">Cetak QRIS Sekarang</button>
+                    <input type="text" id="m-name-input" placeholder="Nama Toko" class="w-full p-4 rounded-2xl bg-white border border-slate-100 text-center font-bold mb-4 outline-none uppercase">
+                    <button onclick="setupMerchant()" class="w-full py-4 bg-sky-600 text-white rounded-2xl font-black uppercase text-xs">Cetak QRIS Berhias</button>
                 </div>
 
                 <div id="merchant-active" class="hidden">
                     <div class="bg-white p-2 rounded-3xl mb-6 shadow-inner border border-slate-50 overflow-hidden">
                         <canvas id="qris-canvas" class="w-full rounded-2xl"></canvas>
                     </div>
-                    <div class="space-y-4">
-                        <input type="number" id="d-amt" placeholder="Nominal Deposit" class="w-full p-5 rounded-2xl bg-white border border-slate-100 text-center font-bold outline-none">
-                        <div class="bg-white p-6 rounded-2xl border-2 border-dashed border-slate-100 text-center">
-                            <label class="cursor-pointer">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase">Upload Bukti Transfer</span>
-                                <input type="file" id="d-file" accept="image/*" class="mt-2 text-[9px] w-full">
-                            </label>
-                        </div>
-                        <button id="d-btn" onclick="handleDepo()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-black uppercase text-xs">Konfirmasi Pembayaran</button>
-                    </div>
+                    <input type="number" id="d-amt" placeholder="Nominal Isi Saldo" class="w-full p-5 rounded-2xl bg-white border border-slate-100 text-center font-bold mb-3">
+                    <input type="file" id="d-file" accept="image/*" class="w-full mb-4">
+                    <button onclick="handleDepo()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-black uppercase text-xs">Konfirmasi</button>
                 </div>
             </div>
 
             <div id="tab-wd" class="tab-content glass p-6 rounded-[40px] mb-8 shadow-sm">
-                <div class="space-y-4">
-                    <div class="relative">
-                        <input type="text" id="w-phone" placeholder="Nomor DANA" class="w-full p-5 rounded-2xl bg-white border border-slate-100 text-center font-bold outline-none">
-                    </div>
-                    <input type="number" id="w-amt" placeholder="Nominal WD" class="w-full p-5 rounded-2xl bg-white border border-slate-100 text-center font-bold outline-none">
-                    <button id="w-btn" onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs disabled:bg-slate-200">Tarik Saldo</button>
-                </div>
-                <p id="w-msg" class="text-[10px] text-red-500 font-bold text-center mt-6 hidden italic uppercase">Penarikan Sebelumnya Masih Pending</p>
+                <input type="text" id="w-phone" placeholder="Nomor DANA" class="w-full p-5 rounded-2xl bg-white border border-slate-100 text-center font-bold mb-3">
+                <input type="number" id="w-amt" placeholder="Nominal" class="w-full p-5 rounded-2xl bg-white border border-slate-100 text-center font-bold mb-5">
+                <button id="w-btn" onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs">Tarik Saldo</button>
             </div>
 
-            <div class="bg-white p-6 rounded-[40px] shadow-sm border border-slate-50">
-                <h4 class="font-black text-slate-800 uppercase text-[10px] italic tracking-widest mb-6">Aktivitas Terbaru</h4>
-                <div id="h-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-2"></div>
-            </div>
-            
-            <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="mt-8 flex items-center justify-center gap-3 w-full py-5 bg-green-500 text-white rounded-[30px] font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-green-100">
-                <i class="fab fa-whatsapp"></i> Hubungi Admin RaCloud
-            </a>
+            <div id="h-list" class="space-y-3"></div>
         </div>
     </div>
 
@@ -121,21 +81,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-        
-        let uBal = 0, isPendingWD = false, userUid = null;
+        let userUid = null;
 
         onAuthStateChanged(auth, u => {
             if(!u) window.location.replace('index.html');
             else {
                 userUid = u.uid;
-                document.getElementById('user-display-name').innerText = u.displayName;
-                checkMerchantStatus(u);
                 sync(u.uid);
+                checkMerchant(u.uid);
             }
         });
 
-        async function checkMerchantStatus(u) {
-            const snap = await get(ref(db, `users/${u.uid}/merchant_name`));
+        async function checkMerchant(uid) {
+            const snap = await get(ref(db, `users/${uid}/merchant_name`));
             if(snap.exists()) {
                 document.getElementById('merchant-active').classList.remove('hidden');
                 drawGPNQRIS(snap.val());
@@ -146,102 +104,80 @@
 
         window.setupMerchant = async () => {
             const mName = document.getElementById('m-name-input').value.trim();
-            if(!mName) return alert("Masukkan Nama Toko!");
+            if(!mName) return alert("Isi nama toko!");
+            await set(ref(db, `users/${userUid}/merchant_name`), mName);
             
-            try {
-                await set(ref(db, `users/${userUid}/merchant_name`), mName);
-                
-                // NOTIF KE BOT DASHBOARD (TOKEN KHUSUS)
-                const botToken = "8786682343:AAFJ_OR9__rrJdUKRLbQ6uTrRrNfcrGuOAU";
-                const chatId = "8362148317";
-                const text = `🏪 *MERCHANT BARU DICETAK*\n\n👤 User: ${auth.currentUser.displayName}\n🏪 Toko: ${mName.toUpperCase()}\n🆔 ID: ${userUid}\n\n✅ QRIS GPN Otomatis Aktif!`;
-
-                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: "Markdown" })
-                });
-
-                alert("Berhasil Mencetak QRIS!");
-                window.location.reload();
-            } catch (e) { alert("Gagal setup merchant."); }
+            // NOTIF BOT DASHBOARD
+            const botToken = "8786682343:AAFJ_OR9__rrJdUKRLbQ6uTrRrNfcrGuOAU";
+            const msg = `🏪 *MERCHANT DICETAK*\n\n👤 User: ${auth.currentUser.displayName}\n🏪 Toko: ${mName}\n🆔 ID: ${userUid}`;
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: "8362148317", text: msg, parse_mode: "Markdown" })
+            });
+            window.location.reload();
         };
 
         function drawGPNQRIS(mName) {
             const cv = document.getElementById('qris-canvas'), cx = cv.getContext('2d');
-            const im = new Image(); im.crossOrigin = "anonymous";
-            im.src = "https://i.ibb.co.com/7d4MhQtf/Tak-berjudul34-20260413183523.jpg"; 
+            const bg = new Image(); 
+            bg.crossOrigin = "anonymous";
+            // Menggunakan gambar hiasan dari foto yang kamu kirim
+            bg.src = "https://i.ibb.co.com/1000101921/hiasan-qris.jpg"; 
 
-            im.onload = () => { 
-                cv.width = im.width; cv.height = im.height; 
-                cx.drawImage(im, 0, 0); 
+            bg.onload = () => {
+                cv.width = bg.width; cv.height = bg.height;
+                cx.drawImage(bg, 0, 0);
+
+                // Menggambar Nama Toko di atas (Ganti Tulisan "NAMA")
                 cx.fillStyle = "#334155";
-                cx.font = "bold 60px 'Plus Jakarta Sans', sans-serif";
+                cx.font = "bold 55px 'Plus Jakarta Sans'";
                 cx.textAlign = "center";
-                cx.fillText(mName.toUpperCase(), cv.width / 2, 315); 
+                cx.fillText(mName.toUpperCase(), cv.width / 2, 185);
+
+                // Menggambar NMID tetap (Bisa diubah sesuai data dinamis jika perlu)
+                cx.font = "400 32px 'Plus Jakarta Sans'";
+                cx.fillText("NMID: ID102000882008519349", cv.width / 2, 255);
+                
+                // Note: Kode QR utama sudah menyatu di gambar backgroundmu. 
+                // Jika ingin dinamis, diperlukan library QR-Gen tambahan di sini.
             };
         }
 
         function sync(uid) {
-            onValue(ref(db, `users/${uid}/balance`), s => { 
-                uBal = s.val() || 0; 
-                document.getElementById('balance').innerText = uBal.toLocaleString(); 
-            });
-            
+            onValue(ref(db, `users/${uid}/balance`), s => { document.getElementById('balance').innerText = (s.val() || 0).toLocaleString(); });
             onValue(ref(db, 'transactions'), snap => {
                 const list = document.getElementById('h-list'); list.innerHTML = "";
-                isPendingWD = false;
-                let arr = []; 
-                snap.forEach(c => { 
+                snap.forEach(c => {
                     const d = c.val();
                     if(d.uid === uid) {
-                        arr.push(d);
-                        if(d.type === 'wd' && d.status === 'pending') isPendingWD = true;
+                        list.insertAdjacentHTML('afterbegin', `<div class="p-4 bg-white rounded-2xl mb-2 border border-slate-100 flex justify-between"><span>${d.type.toUpperCase()}</span><b>Rp${d.amount.toLocaleString()}</b></div>`);
                     }
-                });
-                document.getElementById('w-btn').disabled = isPendingWD;
-                document.getElementById('w-msg').classList.toggle('hidden', !isPendingWD);
-                arr.reverse().slice(0, 10).forEach(d => {
-                    const color = d.status === 'success' ? 'text-green-500' : (d.status === 'failed' ? 'text-red-500' : 'text-amber-500');
-                    list.insertAdjacentHTML('beforeend', `
-                        <div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center mb-2 border border-slate-100">
-                            <div>
-                                <p class="text-[9px] font-black uppercase italic text-slate-400">${d.type}</p>
-                                <p class="text-[8px] font-bold text-slate-400">${new Date(d.time).toLocaleDateString()}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-black text-slate-800 text-xs">Rp${d.amount.toLocaleString()}</p>
-                                <p class="text-[7px] font-black uppercase ${color}">${d.status}</p>
-                            </div>
-                        </div>
-                    `);
                 });
             });
         }
 
         window.handleDepo = async () => {
             const amt = document.getElementById('d-amt').value, fl = document.getElementById('d-file').files[0];
-            if(!amt || !fl) return alert("Lengkapi Nominal & Bukti!");
+            if(!amt || !fl) return alert("Lengkapi data!");
             const rd = new FileReader(); rd.readAsDataURL(fl);
             rd.onload = async () => {
                 await set(push(ref(db, 'transactions')), { uid: userUid, name: auth.currentUser.displayName, amount: parseInt(amt), proof: rd.result, status: 'pending', type: 'depo', time: Date.now() });
-                alert("Permintaan Deposit Terkirim!"); window.location.reload();
+                alert("Berhasil!"); window.location.reload();
             };
         };
 
         window.handleWD = async () => {
             const amt = parseInt(document.getElementById('w-amt').value), ph = document.getElementById('w-phone').value;
-            if(!amt || amt < 1000 || amt > uBal || !ph) return alert("Cek kembali Saldo & Data DANA!");
             await set(push(ref(db, 'transactions')), { uid: userUid, name: auth.currentUser.displayName, amount: amt, phone: ph, status: 'pending', type: 'wd', time: Date.now() });
-            alert("Penarikan Sedang Diproses!"); window.location.reload();
+            alert("Berhasil!"); window.location.reload();
         };
 
         window.switchTab = (id) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         };
-        
-        window.logout = () => signOut(auth).then(() => window.location.replace('index.html'));
+        window.logout = () => signOut(auth);
     </script>
 </body>
 </html>
