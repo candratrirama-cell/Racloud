@@ -23,19 +23,17 @@
     <div id="global-lock">
         <div id="lock-icon" class="w-24 h-24 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg"></div>
         <h1 id="lock-title" class="text-3xl font-black text-slate-900 mb-2 uppercase italic"></h1>
-        <p id="lock-desc" class="text-slate-500 max-w-xs mb-8 font-medium"></p>
+        <p id="lock-desc" class="text-slate-500 max-w-xs mb-8 font-medium text-center"></p>
         <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="bg-sky-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl">Hubungi Admin</a>
     </div>
 
     <div id="page-setup">
-        <div class="w-20 h-20 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-3xl mb-6 shadow-inner">
-            <i class="fas fa-store"></i>
-        </div>
+        <div class="w-20 h-20 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-3xl mb-6 shadow-inner"><i class="fas fa-store"></i></div>
         <h2 class="text-2xl font-black text-slate-900 mb-2 italic uppercase">SETUP MERCHANT</h2>
-        <p class="text-slate-400 text-sm mb-8 max-w-xs font-medium">Masukkan nama toko atau namamu untuk ditampilkan di QRIS pembayaran.</p>
+        <p class="text-slate-400 text-sm mb-8 max-w-xs font-medium">Berikan nama untuk toko atau profil merchant Anda.</p>
         <div class="w-full max-w-xs">
-            <input type="text" id="setup-merchant-name" placeholder="CONTOH: RAMA STORE" class="w-full p-4 rounded-2xl bg-slate-50 mb-4 outline-none font-bold text-sky-700 border-2 border-slate-100 text-center uppercase">
-            <button onclick="saveMerchantName()" class="w-full bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">SIMPAN & MASUK</button>
+            <input type="text" id="setup-merchant-name" placeholder="NAMA MERCHANT" class="w-full p-4 rounded-2xl bg-slate-50 mb-4 outline-none font-bold text-sky-700 border-2 border-slate-100 text-center uppercase">
+            <button onclick="saveMerchantName()" class="w-full bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">SIMPAN & MULAI</button>
         </div>
     </div>
 
@@ -43,20 +41,22 @@
         <div id="page-landing" class="min-h-screen flex flex-col">
             <nav class="p-6 flex justify-between items-center max-w-6xl mx-auto w-full">
                 <div class="flex items-center gap-2 text-sky-600 font-extrabold text-2xl tracking-tighter italic"><i class="fas fa-cloud"></i> RaCloud</div>
+                <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="text-green-600 font-bold text-xs bg-green-50 px-4 py-2 rounded-full border border-green-100"><i class="fab fa-whatsapp"></i> Komunitas</a>
             </nav>
             <main class="flex-1 flex flex-col items-center justify-center text-center px-6">
-                <div class="w-20 h-20 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-3xl mb-8 animate-bounce shadow-inner">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
+                <div class="w-20 h-20 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-3xl mb-8 animate-bounce"><i class="fas fa-shield-alt"></i></div>
                 <h1 class="text-5xl font-extrabold text-slate-900 mb-6 leading-tight tracking-tighter">Kelola Saldo <br><span class="text-sky-600">Tanpa Batas</span></h1>
-                <button onclick="showPage('page-login')" class="w-full max-w-xs bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-2xl active:scale-95 transition-all">Mulai Sekarang</button>
+                <p class="text-slate-400 mb-10 max-w-xs font-medium">Platform ekosistem digital aman dengan integrasi cloud otomatis.</p>
+                <div class="flex flex-col gap-4 w-full max-w-xs">
+                    <button onclick="showPage('page-login')" class="bg-sky-600 text-white py-4 rounded-2xl font-bold shadow-2xl active:scale-95 transition-all">Masuk Sekarang</button>
+                </div>
             </main>
         </div>
 
         <div id="page-login" class="hidden min-h-screen flex items-center justify-center p-6 bg-sky-50">
-            <div class="glass p-10 rounded-[40px] shadow-2xl w-full max-w-md text-center">
-                <h2 class="text-3xl font-black text-slate-800 tracking-tighter italic mb-8 uppercase">MASUK AKUN</h2>
-                <button id="btn-login-google" class="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 font-bold text-slate-700 active:scale-95 transition-all shadow-sm">
+            <div class="glass p-10 rounded-[40px] shadow-2xl w-full max-w-md text-center border border-white">
+                <h2 class="text-3xl font-black text-slate-800 tracking-tighter italic mb-8 uppercase">LOGIN USER</h2>
+                <button id="btn-login-google" class="w-full py-4 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center gap-3 font-bold text-slate-700 shadow-sm active:scale-95 transition-all">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="20"> Lanjutkan dengan Google
                 </button>
                 <button onclick="showPage('page-landing')" class="mt-8 text-slate-400 text-xs font-bold uppercase tracking-widest">Kembali</button>
@@ -73,7 +73,10 @@
                 <div class="bg-sky-gradient p-8 rounded-[35px] text-white shadow-2xl mb-8 relative overflow-hidden">
                     <p class="text-sky-100 text-[10px] font-bold uppercase tracking-[0.3em] mb-2 opacity-80">Available Balance</p>
                     <h3 class="text-5xl font-extrabold tracking-tighter italic">Rp<span id="balance">0</span></h3>
-                    <p id="user-display-name" class="mt-6 text-[10px] font-bold uppercase tracking-widest opacity-90"></p>
+                    <div class="mt-6 flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <p id="user-display-name" class="text-[10px] font-bold uppercase tracking-widest opacity-90"></p>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
@@ -87,31 +90,32 @@
                     </button>
                 </div>
 
-                <div id="tab-depo" class="tab-content glass p-6 rounded-[35px] mb-8 border-2 border-white shadow-lg">
-                    <canvas id="qris-canvas" class="w-full rounded-2xl mb-6 shadow-md border-2 border-slate-100"></canvas>
-                    
-                    <a href="https://i.ibb.co.com/bRJWY5KL/Tak-berjudul34-20260413183523.jpg" target="_blank" class="block w-full py-4 mb-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-2xl text-[10px] font-black text-center uppercase tracking-tighter italic active:scale-95 transition-all">
-                        <i class="fas fa-image mr-1"></i> Lihat Contoh Bukti Transaksi Wajib
+                <div id="tab-depo" class="tab-content glass p-6 rounded-[35px] mb-8 border border-white">
+                    <canvas id="qris-canvas" class="w-full rounded-2xl mb-6 shadow-md border-2 border-slate-50"></canvas>
+                    <a href="https://i.ibb.co.com/bRJWY5KL/Tak-berjudul34-20260413183523.jpg" target="_blank" class="block w-full py-4 mb-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-2xl text-[10px] font-black text-center uppercase italic">
+                        <i class="fas fa-image mr-1"></i> Contoh Bukti Transaksi Wajib
                     </a>
-
-                    <input type="number" id="d-amt" placeholder="Nominal Isi Saldo" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-sky-700 border border-slate-100 text-center">
-                    
+                    <input type="number" id="d-amt" placeholder="Nominal" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-sky-700 text-center">
                     <div class="bg-white p-5 rounded-2xl border-2 border-dashed border-sky-100 text-center mb-5">
-                        <p class="text-[10px] font-black text-sky-400 mb-2 italic uppercase">Upload Bukti Transfer</p>
+                        <p class="text-[10px] font-black text-sky-400 mb-2 uppercase">Upload Bukti</p>
                         <input type="file" id="d-file" accept="image/*" class="text-[10px] text-slate-400">
                     </div>
-                    
-                    <button id="d-btn" onclick="handleDepo()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg shadow-sky-100 active:scale-95 transition-all">Kirim Laporan</button>
+                    <button id="d-btn" onclick="handleDepo()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg">Kirim Laporan</button>
                 </div>
 
-                <div id="tab-wd" class="tab-content glass p-6 rounded-[35px] mb-8">
-                    <input type="text" id="w-phone" placeholder="Nomor DANA (08...)" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-center">
-                    <input type="number" id="w-amt" placeholder="Nominal Penarikan" class="w-full p-4 rounded-2xl bg-slate-50 mb-5 outline-none font-bold text-center">
-                    <button onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold uppercase text-xs tracking-widest active:scale-95 transition-all">Proses WD</button>
+                <div id="tab-wd" class="tab-content glass p-6 rounded-[35px] mb-8 border border-white text-center">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <h4 class="font-black text-slate-800 italic uppercase text-sm">WD DANA</h4>
+                        <span class="text-[9px] bg-sky-100 text-sky-600 px-3 py-1 rounded-full font-black uppercase">FEE 1.5%</span>
+                    </div>
+                    <input type="text" id="w-phone" placeholder="Nomor DANA" class="w-full p-4 rounded-2xl bg-slate-50 mb-3 outline-none font-bold text-center">
+                    <input type="number" id="w-amt" placeholder="Nominal" class="w-full p-4 rounded-2xl bg-slate-50 mb-5 outline-none font-bold text-center">
+                    <button id="w-btn" onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold uppercase text-xs tracking-widest">Proses WD</button>
+                    <p id="w-msg" class="text-[10px] text-red-500 font-bold mt-4 hidden italic animate-pulse">TRANSAKSI PENDING, MOHON TUNGGU...</p>
                 </div>
 
-                <div class="glass p-6 rounded-[35px]">
-                    <h4 class="font-black text-slate-800 mb-6 uppercase text-xs italic tracking-widest">Riwayat Aktivitas</h4>
+                <div class="glass p-6 rounded-[35px] border border-white">
+                    <h4 class="font-black text-slate-800 mb-6 uppercase text-xs italic tracking-widest"><i class="fas fa-history text-sky-400"></i> Riwayat Aktivitas</h4>
                     <div id="h-list" class="space-y-4 max-h-[400px] overflow-y-auto"></div>
                 </div>
             </div>
@@ -134,9 +138,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-        let uBal = 0;
+        let uBal = 0, uWait = false;
         let currentSessionId = localStorage.getItem('ra_sid') || Math.random().toString(36).substring(7);
 
+        // UI NAVIGATION
         window.showPage = (id) => {
             ['page-landing', 'page-login', 'page-dashboard'].forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
@@ -149,133 +154,136 @@
             if(!active) el.classList.add('active');
         };
 
-        // AUTH & MERCHANT CHECK
+        // REMOTE SYSTEM CONTROL
+        onValue(ref(db, 'system_status'), (snap) => {
+            const st = snap.val() || 'open';
+            const lock = document.getElementById('global-lock');
+            const body = document.getElementById('app-body');
+            const icon = document.getElementById('lock-icon');
+            const title = document.getElementById('lock-title');
+            const desc = document.getElementById('lock-desc');
+
+            if(st === 'open') { lock.style.display = 'none'; body.style.display = 'block'; } 
+            else {
+                lock.style.display = 'flex'; body.style.display = 'none';
+                if(st === 'close') {
+                    icon.className = "w-24 h-24 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg";
+                    icon.innerHTML = '<i class="fas fa-power-off"></i>';
+                    title.innerText = "SERVER OFFLINE";
+                    desc.innerText = "Sistem sedang dimatikan untuk sementara waktu.";
+                } else if(st === 'maintenance') {
+                    icon.className = "w-24 h-24 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg";
+                    icon.innerHTML = '<i class="fas fa-tools"></i>';
+                    title.innerText = "MAINTENANCE";
+                    desc.innerText = "Sedang ada pembaruan sistem. Mohon kembali nanti.";
+                }
+            }
+        });
+
+        // AUTH & DATABASE SYNC
         document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
 
         onAuthStateChanged(auth, async u => {
             if(u) {
                 const userRef = ref(db, `users/${u.uid}`);
-                const snap = await get(userRef);
-                const userData = snap.val();
-
-                // Jika user baru / belum ada nama merchant
-                if(!userData || !userData.merchantName) {
-                    document.getElementById('app-body').style.display = 'none';
-                    document.getElementById('page-setup').style.display = 'flex';
-                } else {
-                    document.getElementById('page-setup').style.display = 'none';
-                    document.getElementById('app-body').style.display = 'block';
-                    document.getElementById('user-display-name').innerText = userData.merchantName;
-                    showPage('page-dashboard');
-                    drawQRIS(userData.merchantName);
-                    sync(u.uid);
-                }
+                onValue(userRef, async snap => {
+                    const data = snap.val();
+                    if(data?.banned) {
+                        document.getElementById('global-lock').style.display = 'flex';
+                        document.getElementById('app-body').style.display = 'none';
+                        document.getElementById('lock-icon').className = "w-24 h-24 bg-red-600 text-white rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg";
+                        document.getElementById('lock-icon').innerHTML = '<i class="fas fa-user-slash"></i>';
+                        document.getElementById('lock-title').innerText = "AKUN TERKUNCI";
+                        document.getElementById('lock-desc').innerText = "Akses Anda ditangguhkan permanen karena melanggar aturan.";
+                    } else if(!data?.merchantName) {
+                        document.getElementById('app-body').style.display = 'none';
+                        document.getElementById('page-setup').style.display = 'flex';
+                    } else {
+                        localStorage.setItem('ra_sid', currentSessionId);
+                        document.getElementById('page-setup').style.display = 'none';
+                        document.getElementById('app-body').style.display = 'block';
+                        document.getElementById('user-display-name').innerText = data.merchantName;
+                        showPage('page-dashboard');
+                        drawQ(data.merchantName);
+                        initSession(u.uid);
+                        sync(u.uid);
+                    }
+                });
             } else { showPage('page-landing'); }
         });
 
         window.saveMerchantName = async () => {
             const name = document.getElementById('setup-merchant-name').value.toUpperCase();
-            if(name.length < 3) return alert("Nama Merchant minimal 3 karakter!");
-            
-            const u = auth.currentUser;
-            await update(ref(db, `users/${u.uid}`), {
-                merchantName: name,
-                email: u.email,
-                balance: 0,
-                lastActive: serverTimestamp()
-            });
+            if(name.length < 3) return alert("Nama Merchant minimal 3 huruf!");
+            await update(ref(db, `users/${auth.currentUser.uid}`), { merchantName: name, balance: 0, lastActive: serverTimestamp() });
             location.reload();
         };
 
-        // QRIS CANVAS GENERATOR (GPN COLORFUL STYLE)
-        function drawQRIS(merchantName) {
-            const cv = document.getElementById('qris-canvas');
-            const cx = cv.getContext('2d');
-            const qrImg = new Image();
-            qrImg.crossOrigin = "anonymous";
-            qrImg.src = "https://i.ibb.co.com/7d4MhQtf/1776079336915-1.jpg"; // Link QRIS Baru
+        function initSession(uid) {
+            const sRef = ref(db, `users/${uid}/sessions/${currentSessionId}`);
+            update(sRef, { lastActive: serverTimestamp() });
+            onValue(ref(db, `users/${uid}/sessions`), s => { if(!s.hasChild(currentSessionId)) { signOut(auth); location.reload(); }});
+        }
 
-            qrImg.onload = () => {
-                cv.width = 1000;
-                cv.height = 1350;
+        window.logoutAllDevices = async () => {
+            if(!confirm("Keluarkan dari semua perangkat?")) return;
+            await remove(ref(db, `users/${auth.currentUser.uid}/sessions`));
+            await signOut(auth); location.reload();
+        }
 
-                // 1. Background White
-                cx.fillStyle = "#ffffff";
-                cx.fillRect(0, 0, cv.width, cv.height);
-
-                // 2. Header Box (GPN Blue)
-                cx.fillStyle = "#1e3a8a";
-                cx.fillRect(0, 0, cv.width, 240);
-
-                // 3. Nama Merchant (Center Header)
-                cx.fillStyle = "white";
-                cx.font = "900 65px 'Plus Jakarta Sans'";
-                cx.textAlign = "center";
-                cx.fillText(merchantName, cv.width/2, 110);
-
-                cx.font = "600 30px sans-serif";
-                cx.fillText("NMID : ID202604149999", cv.width/2, 175);
-
-                // 4. Garis Warna GPN (Red, Yellow, Cyan)
-                const colors = ["#ef4444", "#fbbf24", "#06b6d4"];
-                colors.forEach((color, i) => {
-                    cx.fillStyle = color;
-                    cx.fillRect(i * (cv.width/3), 225, cv.width/3, 15);
-                });
-
-                // 5. Drawing the main QR Code Image
-                cx.drawImage(qrImg, 50, 280, 900, 900);
-
-                // 6. Footer Decoration
-                cx.fillStyle = "#f8fafc";
-                cx.fillRect(0, 1220, cv.width, 130);
-                
-                cx.fillStyle = "#94a3b8";
-                cx.font = "bold 28px sans-serif";
-                cx.fillText("POWERED BY RA CLOUD - AUTOMATION", cv.width/2, 1300);
+        function drawQ(n) {
+            const cv = document.getElementById('qris-canvas'), cx = cv.getContext('2d');
+            const im = new Image(); im.crossOrigin = "anonymous";
+            im.src = "https://i.ibb.co.com/7d4MhQtf/1776079336915-1.jpg";
+            im.onload = () => {
+                cv.width = 1000; cv.height = 1350;
+                cx.fillStyle = "white"; cx.fillRect(0,0,cv.width,cv.height);
+                cx.fillStyle = "#1e3a8a"; cx.fillRect(0,0,cv.width,240);
+                cx.fillStyle = "white"; cx.font = "900 65px sans-serif"; cx.textAlign = "center";
+                cx.fillText(n, cv.width/2, 120);
+                cx.font = "600 30px sans-serif"; cx.fillText("ID202604149999", cv.width/2, 185);
+                cx.drawImage(im, 50, 280, 900, 900);
             };
         }
 
         function sync(uid) {
-            onValue(ref(db, `users/${uid}/balance`), s => { 
-                uBal = s.val() || 0; 
-                document.getElementById('balance').innerText = uBal.toLocaleString(); 
-            });
+            onValue(ref(db, `users/${uid}/balance`), s => { uBal = s.val() || 0; document.getElementById('balance').innerText = uBal.toLocaleString(); });
             onValue(ref(db, 'transactions'), snap => {
-                const list = document.getElementById('h-list'); list.innerHTML = "";
+                const list = document.getElementById('h-list'); list.innerHTML = ""; uWait = false;
                 let arr = [];
-                snap.forEach(c => { if(c.val().uid === uid) arr.push(c.val()); });
+                snap.forEach(c => { const d = c.val(); if(d.uid === uid) { arr.push(d); if(d.type==='wd' && d.status==='pending') uWait = true; }});
                 arr.reverse().forEach(d => {
+                    let btnBukti = d.type === 'depo' ? `<a href="${d.proof}" target="_blank" class="mt-4 block w-full py-2 bg-sky-50 text-sky-600 rounded-xl text-[9px] font-black text-center uppercase border border-sky-100">Lihat Bukti</a>` : '';
                     list.insertAdjacentHTML('beforeend', `
-                        <div class="p-4 bg-white rounded-2xl shadow-sm border border-slate-50 flex justify-between items-center">
-                            <div><p class="text-[10px] font-black uppercase text-slate-800 tracking-widest">${d.type}</p><p class="text-[8px] font-bold text-slate-300 mt-1">${new Date(d.time).toLocaleString()}</p></div>
-                            <div class="text-right"><p class="font-black text-sm ${d.status==='success'?'text-green-500':'text-orange-400'}">Rp${d.amount.toLocaleString()}</p><p class="text-[8px] font-bold uppercase text-slate-300">${d.status}</p></div>
+                        <div class="p-4 bg-white rounded-[25px] border border-slate-100 shadow-sm mb-3">
+                            <div class="flex justify-between items-center">
+                                <div><p class="text-[10px] font-black text-slate-800 uppercase italic">${d.type}</p><p class="text-[8px] text-slate-300 font-bold">${new Date(d.time).toLocaleString()}</p></div>
+                                <div class="text-right"><p class="font-black text-sm ${d.status==='success'?'text-green-500':'text-orange-400'}">Rp${d.amount.toLocaleString()}</p><p class="text-[8px] font-bold text-slate-300 uppercase">${d.status}</p></div>
+                            </div>
+                            ${btnBukti}
                         </div>`);
                 });
+                document.getElementById('w-btn').disabled = uWait;
+                document.getElementById('w-msg').classList.toggle('hidden', !uWait);
             });
         }
 
         window.handleDepo = async () => {
             const amt = document.getElementById('d-amt').value, fl = document.getElementById('d-file').files[0];
-            if(!amt || !fl) return alert("Nominal dan Bukti Transfer wajib diisi!");
+            if(!amt || !fl) return alert("Nominal & Bukti wajib!");
             const btn = document.getElementById('d-btn'); btn.disabled = true; btn.innerText = "MENGIRIM...";
             const reader = new FileReader(); reader.readAsDataURL(fl);
             reader.onload = async () => {
                 await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, amount: parseInt(amt), proof: reader.result, status: 'pending', type: 'depo', time: Date.now() });
-                alert("Deposit berhasil dikirim!"); location.reload();
+                alert("Laporan terkirim!"); location.reload();
             };
         };
 
         window.handleWD = async () => {
             const amt = parseInt(document.getElementById('w-amt').value), ph = document.getElementById('w-phone').value;
-            if(!amt || amt < 1000 || amt > uBal || !ph) return alert("Saldo tidak cukup atau data belum lengkap!");
+            if(amt < 1000 || amt > uBal || !ph) return alert("Saldo kurang atau data salah!");
             await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, amount: amt, phone: ph, status: 'pending', type: 'wd', time: Date.now() });
-            alert("Penarikan sedang diproses!"); location.reload();
-        };
-
-        window.logoutAllDevices = async () => {
-            if(!confirm("Keluarkan semua perangkat?")) return;
-            await signOut(auth); location.reload();
+            alert("WD sedang diproses!"); location.reload();
         };
     </script>
 </body>
