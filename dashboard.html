@@ -80,7 +80,7 @@
             </div>
 
             <div class="bg-white p-6 rounded-[40px] shadow-sm border border-slate-50">
-                <div id="h-list" class="space-y-3 max-h-[300px] overflow-y-auto"></div>
+                <div id="h-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-2"></div>
             </div>
             
             <a href="https://chat.whatsapp.com/G7TBwD4vIDb20ZxbUJXane" class="mt-8 flex items-center justify-center gap-3 w-full py-5 bg-green-500 text-white rounded-[30px] font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-green-100">
@@ -131,16 +131,23 @@
             const mName = document.getElementById('m-name-input').value.trim();
             if(!mName) return alert("Masukkan nama merchant!");
             
+            // Simpan ke Firebase
             await set(ref(db, `users/${userUid}/merchant_name`), mName);
-            // TRIGGER BOT TELEGRAM VIA LOGS
-            await set(push(ref(db, `logs/merchant_prints`)), {
-                uid: userUid,
-                name: auth.currentUser.displayName,
-                merchant: mName,
-                time: Date.now()
-            });
 
-            alert("QRIS Berhasil Dicetak!");
+            // Kirim Notif ke Bot Khusus (Token 2)
+            const botToken = "8786682343:AAFJ_OR9__rrJdUKRLbQ6uTrRrNfcrGuOAU";
+            const chatId = "8362148317";
+            const msg = `🏪 *MERCHANT BARU DICETAK*\n\n👤 User: ${auth.currentUser.displayName}\n🏪 Toko: ${mName}\n🆔 ID: ${userUid}\n\n✅ Tampilan GPN Aktif!`;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: "Markdown" })
+                });
+            } catch (e) { console.log("Gagal kirim notif"); }
+
+            alert("QRIS GPN Berhasil Dicetak!");
             window.location.reload();
         };
 
@@ -153,7 +160,7 @@
                 cv.width = im.width; cv.height = im.height; 
                 cx.drawImage(im, 0, 0); 
                 cx.fillStyle = "#334155";
-                cx.font = "bold 60px sans-serif";
+                cx.font = "bold 60px 'Plus Jakarta Sans', sans-serif";
                 cx.textAlign = "center";
                 cx.fillText(mName.toUpperCase(), cv.width / 2, 315); 
             };
@@ -175,14 +182,14 @@
                 document.getElementById('w-btn').disabled = isPendingWD;
                 document.getElementById('w-msg').classList.toggle('hidden', !isPendingWD);
                 arr.reverse().slice(0, 10).forEach(d => {
-                    list.insertAdjacentHTML('beforeend', `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center mb-2"><p class="text-[9px] font-black uppercase italic text-slate-400">${d.type}</p><p class="font-black text-slate-800 text-xs">Rp${d.amount.toLocaleString()}</p></div>`);
+                    list.insertAdjacentHTML('beforeend', `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center mb-2 shadow-sm"><p class="text-[9px] font-black uppercase italic text-slate-400">${d.type}</p><div class="text-right"><p class="font-black text-slate-800 text-xs">Rp${d.amount.toLocaleString()}</p><p class="text-[7px] font-black uppercase text-amber-500">${d.status}</p></div></div>`);
                 });
             });
         }
 
         window.handleDepo = async () => {
             const amt = document.getElementById('d-amt').value, fl = document.getElementById('d-file').files[0];
-            if(!amt || !fl) return alert("Isi nominal dan upload bukti!");
+            if(!amt || !fl) return alert("Pilih nominal dan upload bukti!");
             const rd = new FileReader(); rd.readAsDataURL(fl);
             rd.onload = async () => {
                 await set(push(ref(db, 'transactions')), { uid: userUid, name: auth.currentUser.displayName, amount: parseInt(amt), proof: rd.result, status: 'pending', type: 'depo', time: Date.now() });
@@ -192,7 +199,7 @@
 
         window.handleWD = async () => {
             const amt = parseInt(document.getElementById('w-amt').value), ph = document.getElementById('w-phone').value;
-            if(!amt || amt < 1000 || amt > uBal || !ph) return alert("Cek saldo/data!");
+            if(!amt || amt < 1000 || amt > uBal || !ph) return alert("Saldo tidak cukup atau data salah!");
             await set(push(ref(db, 'transactions')), { uid: userUid, name: auth.currentUser.displayName, amount: amt, phone: ph, status: 'pending', type: 'wd', time: Date.now() });
             alert("WD diajukan!"); window.location.reload();
         };
