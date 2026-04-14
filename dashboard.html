@@ -11,7 +11,6 @@
             if (!urlToken || urlToken !== storedToken) {
                 sessionStorage.clear(); window.location.replace('index.html');
             }
-            // Proteksi Refresh: Hapus izin saat unload
             window.onbeforeunload = () => { sessionStorage.removeItem('ra_access_granted'); };
         })();
     </script>
@@ -73,10 +72,12 @@
             </div>
 
             <div id="tab-wd" class="tab-content glass p-6 rounded-[35px] mb-8 border border-white">
-                <input type="text" id="w-phone" placeholder="Nomor DANA" class="w-full p-4 rounded-2xl bg-white mb-3 border border-slate-100 text-center font-bold">
-                <input type="number" id="w-amt" placeholder="Nominal Penarikan" class="w-full p-4 rounded-2xl bg-white mb-5 border border-slate-100 text-center font-bold">
-                <button id="w-btn" onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold uppercase text-xs">Proses WD</button>
-                <p id="w-msg" class="text-[10px] text-red-500 font-bold text-center mt-4 hidden italic animate-pulse">TRANSAKSI PENDING...</p>
+                <div id="wd-container">
+                    <input type="text" id="w-phone" placeholder="Nomor DANA" class="w-full p-4 rounded-2xl bg-white mb-3 border border-slate-100 text-center font-bold">
+                    <input type="number" id="w-amt" placeholder="Nominal Penarikan" class="w-full p-4 rounded-2xl bg-white mb-5 border border-slate-100 text-center font-bold">
+                    <button id="w-btn" onclick="handleWD()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold uppercase text-xs disabled:bg-slate-300 disabled:cursor-not-allowed">Proses WD</button>
+                </div>
+                <p id="w-msg" class="text-[10px] text-red-500 font-bold text-center mt-4 hidden italic animate-pulse">Selesaikan penarikan sebelumnya sebelum menarik lagi.</p>
             </div>
 
             <div class="glass p-6 rounded-[35px] border border-white">
@@ -102,6 +103,7 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
         let uBal = 0;
+        let isPendingWD = false;
 
         onAuthStateChanged(auth, u => {
             if(!u) window.location.replace('index.html');
@@ -110,7 +112,7 @@
                     if(snap.val() === true) lock("AKUN TERKUNCI", "Pelanggaran kebijakan.", "fas fa-user-slash", "bg-red-600 text-white");
                     else {
                         document.getElementById('user-display-name').innerText = u.displayName;
-                        drawQ(u.displayName); sync(u.uid);
+                        drawQ(); sync(u.uid);
                     }
                 });
             }
@@ -136,20 +138,51 @@
             if(!active) el.classList.add('active');
         };
 
-        function drawQ(n) {
+        function drawQ() {
             const cv = document.getElementById('qris-canvas'), cx = cv.getContext('2d');
             const im = new Image(); im.crossOrigin = "anonymous";
-            im.src = "https://i.ibb.co.com/39M4CcTD/1776079336915-1.jpg";
-            im.onload = () => { cv.width = im.width; cv.height = im.height; cx.drawImage(im,0,0); cx.font="bold 45px sans-serif"; cx.textAlign="center"; cx.fillText(n.toUpperCase(), cv.width/2, 160); };
+            im.src = "https://i.ibb.co.com/7d4MhQtf/Tak-berjudul34-20260413183523.jpg"; // Link QRIS Terbaru
+            im.onload = () => { 
+                cv.width = im.width; cv.height = im.height; 
+                cx.drawImage(im,0,0); 
+                cx.font="bold 45px sans-serif"; 
+                cx.textAlign="center"; 
+                cx.fillStyle = "black";
+                cx.fillText("GOOGLE", cv.width/2, 160); // Nama Merchant Google
+            };
         }
 
         function sync(uid) {
             onValue(ref(db, `users/${uid}/balance`), s => { uBal = s.val() || 0; document.getElementById('balance').innerText = uBal.toLocaleString(); });
             onValue(ref(db, 'transactions'), snap => {
                 const list = document.getElementById('h-list'); list.innerHTML = "";
-                let arr = []; snap.forEach(c => { if(c.val().uid === uid) arr.push(c.val()); });
+                isPendingWD = false; // Reset status pending
+                let arr = []; 
+                
+                snap.forEach(c => { 
+                    const data = c.val();
+                    if(data.uid === uid) {
+                        arr.push(data);
+                        // Cek jika ada WD yang masih pending
+                        if(data.type === 'wd' && data.status === 'pending') {
+                            isPendingWD = true;
+                        }
+                    }
+                });
+
+                // Update UI tombol WD
+                const wBtn = document.getElementById('w-btn');
+                const wMsg = document.getElementById('w-msg');
+                if(isPendingWD) {
+                    wBtn.disabled = true;
+                    wMsg.classList.remove('hidden');
+                } else {
+                    wBtn.disabled = false;
+                    wMsg.classList.add('hidden');
+                }
+
                 arr.reverse().forEach(d => {
-                    let b = d.type==='depo' ? `<a href="${d.proof}" target="_blank" class="mt-4 block py-2 bg-sky-100 text-sky-600 rounded-xl text-[9px] font-black text-center uppercase">Lihat Bukti</a>` : '';
+                    let b = d.type==='depo' ? `<a href="${d.proof}" target="_blank" class="mt-4 block py-2 bg-sky-100 text-sky-600 rounded-xl text-[9px] font-black text-center uppercase border border-sky-200">Lihat Bukti</a>` : '';
                     list.insertAdjacentHTML('beforeend', `<div class="p-5 bg-white rounded-[25px] border border-slate-100 mb-3 shadow-sm flex flex-col">
                         <div class="flex justify-between items-center"><div><p class="text-[10px] font-black uppercase italic">${d.type}</p></div><div class="text-right"><p class="font-black text-sm">Rp${d.amount.toLocaleString()}</p><p class="text-[8px] font-black uppercase text-slate-300">${d.status}</p></div></div>${b}
                     </div>`);
@@ -168,6 +201,7 @@
         };
 
         window.handleWD = async () => {
+            if(isPendingWD) return alert("Selesaikan penarikan sebelumnya!");
             const amt = parseInt(document.getElementById('w-amt').value), ph = document.getElementById('w-phone').value;
             if(!amt || amt < 1000 || amt > uBal || !ph) return alert("Saldo kurang atau data tidak valid!");
             await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, name: auth.currentUser.displayName, amount: amt, phone: ph, status: 'pending', type: 'wd', time: Date.now() });
