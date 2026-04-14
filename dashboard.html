@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RaCloud Lite</title>
+    <title>RaCloud Lite - Anti Double WD</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,6 +13,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .btn-disabled { background-color: #94a3b8 !important; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -25,86 +26,80 @@
     </div>
 
     <div id="page-setup" class="hidden fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-2xl mb-4"><i class="fas fa-store"></i></div>
-        <h2 class="text-xl font-bold mb-2 uppercase">Nama Merchant</h2>
-        <p class="text-slate-400 text-xs mb-6">Tentukan nama toko yang akan muncul di QRIS.</p>
+        <h2 class="text-xl font-bold mb-6 uppercase">Nama Merchant</h2>
         <input type="text" id="setup-merchant-name" placeholder="CONTOH: RAMA STORE" class="w-full max-w-xs p-4 bg-slate-100 rounded-xl mb-4 outline-none border-2 border-transparent focus:border-sky-500 text-center font-bold uppercase">
-        <button onclick="saveMerchantName()" class="w-full max-w-xs bg-sky-600 text-white py-4 rounded-xl font-bold active:scale-95 transition">SIMPAN</button>
+        <button onclick="saveMerchantName()" class="w-full max-w-xs bg-sky-600 text-white py-4 rounded-xl font-bold">SIMPAN</button>
     </div>
 
     <div id="app-body">
         <div id="page-landing" class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
             <div class="text-sky-600 text-6xl mb-4"><i class="fas fa-cloud"></i></div>
             <h1 class="text-4xl font-extrabold text-slate-900 mb-2 tracking-tighter">RaCloud</h1>
-            <p class="text-slate-400 mb-10 text-sm font-medium">Digital Asset Management Ecosystem</p>
-            <button onclick="showPage('page-login')" class="w-full max-w-xs bg-sky-600 text-white py-4 rounded-xl font-bold shadow-xl active:scale-95 transition">Mulai Sekarang</button>
+            <button onclick="showPage('page-login')" class="w-full max-w-xs bg-sky-600 text-white py-4 rounded-xl font-bold shadow-xl mt-6">Masuk Sekarang</button>
         </div>
 
-        <div id="page-login" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-50">
-            <div class="card p-8 rounded-3xl w-full max-w-md text-center shadow-sm">
-                <h2 class="text-2xl font-bold mb-8 uppercase tracking-widest text-slate-800">Login User</h2>
-                <button id="btn-login-google" class="w-full py-4 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-slate-600 active:bg-slate-50 transition">
+        <div id="page-login" class="hidden min-h-screen flex items-center justify-center p-6">
+            <div class="card p-8 rounded-3xl w-full max-w-md text-center">
+                <h2 class="text-2xl font-bold mb-8 uppercase text-slate-800">Login User</h2>
+                <button id="btn-login-google" class="w-full py-4 border-2 border-slate-100 rounded-xl flex items-center justify-center gap-3 font-bold text-slate-600">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18"> Google Account
                 </button>
-                <button onclick="showPage('page-landing')" class="mt-8 text-slate-400 text-xs font-bold uppercase tracking-widest">Kembali</button>
+                <button onclick="showPage('page-landing')" class="mt-8 text-slate-400 text-xs font-bold uppercase">Kembali</button>
             </div>
         </div>
 
         <div id="page-dashboard" class="hidden min-h-screen pb-10">
             <header class="p-5 flex justify-between items-center bg-white border-b sticky top-0 z-50">
-                <div class="font-bold text-sky-600 italic tracking-tighter text-lg uppercase">RA CLOUD</div>
-                <button onclick="logoutAllDevices()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center"><i class="fas fa-power-off"></i></button>
+                <div class="font-bold text-sky-600 italic uppercase">RA CLOUD</div>
+                <button onclick="logoutAllDevices()" class="text-red-500"><i class="fas fa-power-off"></i></button>
             </header>
 
             <div class="max-w-md mx-auto p-4">
-                <div class="bg-sky-600 p-8 rounded-[32px] text-white shadow-lg mb-6 relative overflow-hidden">
-                    <p class="text-[10px] uppercase tracking-[0.2em] opacity-70 mb-1 font-bold">Saldo Aktif</p>
-                    <h3 class="text-4xl font-bold italic tracking-tighter">Rp<span id="balance">0</span></h3>
-                    <div class="mt-6 flex items-center gap-2">
-                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <p id="user-display-name" class="text-[10px] font-bold uppercase tracking-widest opacity-90"></p>
-                    </div>
+                <div class="bg-sky-600 p-8 rounded-[32px] text-white shadow-lg mb-6">
+                    <p class="text-[10px] uppercase opacity-70 mb-1 font-bold">Saldo Aktif</p>
+                    <h3 class="text-4xl font-bold italic">Rp<span id="balance">0</span></h3>
+                    <p id="user-display-name" class="mt-4 text-[10px] font-bold uppercase tracking-widest opacity-90"></p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mb-6">
                     <button onclick="switchTab('tab-depo')" class="card p-5 rounded-3xl text-center active:bg-slate-50 transition">
-                        <i class="fas fa-plus-circle text-sky-500 text-xl mb-2"></i>
-                        <p class="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Top Up</p>
+                        <i class="fas fa-plus-circle text-sky-500 mb-2"></i>
+                        <p class="text-[10px] font-bold text-slate-600 uppercase">Top Up</p>
                     </button>
                     <button onclick="switchTab('tab-wd')" class="card p-5 rounded-3xl text-center active:bg-slate-50 transition">
-                        <i class="fas fa-paper-plane text-sky-500 text-xl mb-2"></i>
-                        <p class="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Withdraw</p>
+                        <i class="fas fa-paper-plane text-sky-500 mb-2"></i>
+                        <p class="text-[10px] font-bold text-slate-600 uppercase">Withdraw</p>
                     </button>
                 </div>
 
-                <div id="tab-depo" class="tab-content card p-5 rounded-[32px] mb-6 shadow-sm border-white">
+                <div id="tab-depo" class="tab-content card p-5 rounded-[32px] mb-6 shadow-sm">
                     <div class="relative w-full bg-slate-900 rounded-2xl overflow-hidden mb-4 border">
-                        <div id="qris-header" class="bg-blue-800 text-white text-center py-2 text-[11px] font-bold uppercase tracking-widest"></div>
+                        <div id="qris-header" class="bg-blue-800 text-white text-center py-2 text-[11px] font-bold uppercase"></div>
                         <img src="https://i.ibb.co.com/7d4MhQtf/1776079336915-1.jpg" class="w-full">
                     </div>
-                    
                     <a href="https://i.ibb.co.com/bRJWY5KL/Tak-berjudul34-20260413183523.jpg" target="_blank" class="block w-full py-3 mb-4 bg-orange-50 border border-orange-100 text-orange-600 rounded-xl text-[10px] font-bold text-center uppercase italic">
-                        <i class="fas fa-info-circle mr-1"></i> Lihat Contoh Bukti Wajib
+                        <i class="fas fa-info-circle mr-1"></i> Contoh Bukti Wajib
                     </a>
-
-                    <input type="number" id="d-amt" placeholder="Nominal Isi Saldo" class="w-full p-4 bg-slate-50 rounded-xl mb-3 outline-none border text-center font-bold text-sky-700">
+                    <input type="number" id="d-amt" placeholder="Nominal" class="w-full p-4 bg-slate-50 rounded-xl mb-3 outline-none border text-center font-bold text-sky-700">
                     <input type="file" id="d-file" accept="image/*" class="w-full text-[10px] text-slate-400 mb-4 ml-1">
-                    <button id="d-btn" onclick="handleDepo()" class="w-full py-4 bg-sky-600 text-white rounded-xl font-bold uppercase text-xs tracking-widest shadow-md">Kirim Laporan</button>
+                    <button id="d-btn" onclick="handleDepo()" class="w-full py-4 bg-sky-600 text-white rounded-xl font-bold uppercase text-xs">Kirim Laporan</button>
                 </div>
 
-                <div id="tab-wd" class="tab-content card p-5 rounded-[32px] mb-6 shadow-sm border-white">
+                <div id="tab-wd" class="tab-content card p-5 rounded-[32px] mb-6 shadow-sm">
                     <div class="flex justify-between items-center mb-4 px-1">
-                        <h4 class="font-bold text-slate-800 text-[10px] uppercase italic">DANA Withdrawal</h4>
+                        <h4 class="font-bold text-slate-800 text-[10px] uppercase italic">WD DANA</h4>
                         <span class="text-[9px] bg-sky-100 text-sky-600 px-2 py-0.5 rounded font-black uppercase">Fee 1.5%</span>
                     </div>
-                    <input type="text" id="w-phone" placeholder="No HP DANA (08...)" class="w-full p-4 bg-slate-50 rounded-xl mb-3 outline-none border text-center font-bold">
-                    <input type="number" id="w-amt" placeholder="Nominal Penarikan" class="w-full p-4 bg-slate-50 rounded-xl mb-5 outline-none border text-center font-bold">
+                    <input type="text" id="w-phone" placeholder="No HP DANA" class="w-full p-4 bg-slate-50 rounded-xl mb-3 outline-none border text-center font-bold">
+                    <input type="number" id="w-amt" placeholder="Nominal" class="w-full p-4 bg-slate-50 rounded-xl mb-5 outline-none border text-center font-bold">
+                    
                     <button id="w-btn" onclick="handleWD()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold uppercase text-xs tracking-widest">Konfirmasi WD</button>
-                    <p id="w-msg" class="text-[9px] text-red-500 font-bold mt-4 hidden text-center italic animate-pulse tracking-tight">TRANSAKSI SEDANG PENDING, HARAP TUNGGU</p>
+                    
+                    <p id="w-msg" class="text-[9px] text-red-500 font-bold mt-4 hidden text-center italic animate-pulse">ADA WD PENDING! HARAP TUNGGU ADMIN SELESAI PROSES WD SEBELUMNYA.</p>
                 </div>
 
-                <div class="card p-6 rounded-[32px] shadow-sm border-white">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-5 tracking-[0.2em] italic">Aktivitas Terakhir</p>
+                <div class="card p-6 rounded-[32px]">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest">Riwayat</p>
                     <div id="h-list" class="space-y-3"></div>
                 </div>
             </div>
@@ -113,7 +108,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, remove, serverTimestamp, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, push, set, remove, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.app";
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -127,23 +122,20 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-        let uBal = 0, currentSessionId = localStorage.getItem('ra_sid') || Math.random().toString(36).substring(7);
+        let uBal = 0, isWaitWD = false;
 
-        // NAVIGATION
         window.showPage = (id) => {
             document.querySelectorAll('#app-body > div').forEach(p => p.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            window.scrollTo(0,0);
         };
 
         window.switchTab = (id) => {
             const el = document.getElementById(id);
-            const isActive = el.classList.contains('active');
+            const active = el.classList.contains('active');
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            if(!isActive) el.classList.add('active');
+            if(!active) el.classList.add('active');
         };
 
-        // REMOTE SYSTEM STATUS
         onValue(ref(db, 'system_status'), (snap) => {
             const st = snap.val() || 'open';
             const lock = document.getElementById('global-lock');
@@ -151,30 +143,25 @@
             if(st === 'open') { lock.classList.add('hidden'); body.classList.remove('hidden'); } 
             else {
                 lock.classList.remove('hidden'); body.classList.add('hidden');
-                document.getElementById('lock-icon').innerHTML = st === 'close' ? '🚫' : '⚙️';
+                document.getElementById('lock-icon').innerText = st === 'close' ? '🚫' : '⚙️';
                 document.getElementById('lock-title').innerText = st === 'close' ? 'Server Off' : 'Maintenance';
-                document.getElementById('lock-desc').innerText = st === 'close' ? 'Akses dimatikan sementara oleh admin.' : 'Sedang dalam perbaikan sistem.';
             }
         });
 
-        // AUTH & DATABASE SYNC
         document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
 
-        onAuthStateChanged(auth, async u => {
+        onAuthStateChanged(auth, u => {
             if(u) {
                 onValue(ref(db, `users/${u.uid}`), snap => {
                     const data = snap.val();
                     if(data?.banned) {
                         document.getElementById('global-lock').classList.remove('hidden');
                         document.getElementById('app-body').classList.add('hidden');
-                        document.getElementById('lock-icon').innerText = '🔒';
                         document.getElementById('lock-title').innerText = 'BANNED';
-                        document.getElementById('lock-desc').innerText = 'Akun anda diblokir permanen.';
                     } else if(!data?.merchantName) {
                         document.getElementById('app-body').classList.add('hidden');
                         document.getElementById('page-setup').classList.remove('hidden');
                     } else {
-                        localStorage.setItem('ra_sid', currentSessionId);
                         document.getElementById('page-setup').classList.add('hidden');
                         document.getElementById('app-body').classList.remove('hidden');
                         document.getElementById('user-display-name').innerText = data.merchantName;
@@ -189,58 +176,74 @@
         window.saveMerchantName = async () => {
             const name = document.getElementById('setup-merchant-name').value.toUpperCase();
             if(name.length < 3) return alert("Min. 3 Huruf!");
-            await update(ref(db, `users/${auth.currentUser.uid}`), { merchantName: name, balance: 0, lastActive: serverTimestamp() });
+            await update(ref(db, `users/${auth.currentUser.uid}`), { merchantName: name, balance: 0 });
         };
 
         function sync(uid) {
             onValue(ref(db, `users/${uid}/balance`), s => { uBal = s.val() || 0; document.getElementById('balance').innerText = uBal.toLocaleString(); });
+            
             onValue(ref(db, 'transactions'), snap => {
                 const list = document.getElementById('h-list'); list.innerHTML = "";
-                let arr = [], isWait = false;
+                let arr = [];
+                isWaitWD = false; // Reset status pending setiap kali ada update transaksi
+                
                 snap.forEach(c => { 
                     const d = c.val();
                     if(d.uid === uid) {
                         arr.push(d);
-                        if(d.type === 'wd' && d.status === 'pending') isWait = true;
+                        // JIKA ADA WD PENDING, AKTIFKAN MODE TUNGGU
+                        if(d.type === 'wd' && d.status === 'pending') {
+                            isWaitWD = true;
+                        }
                     }
                 });
-                arr.reverse().slice(0, 15).forEach(d => {
-                    const color = d.status === 'success' ? 'text-green-500' : 'text-orange-400';
+
+                // ATUR TAMPILAN TOMBOL BERDASARKAN STATUS PENDING
+                const btnWD = document.getElementById('w-btn');
+                const msgWD = document.getElementById('w-msg');
+                
+                if(isWaitWD) {
+                    btnWD.classList.add('btn-disabled');
+                    btnWD.disabled = true;
+                    msgWD.classList.remove('hidden');
+                } else {
+                    btnWD.classList.remove('btn-disabled');
+                    btnWD.disabled = false;
+                    msgWD.classList.add('hidden');
+                }
+
+                arr.reverse().slice(0, 10).forEach(d => {
                     list.insertAdjacentHTML('beforeend', `
-                        <div class="p-4 bg-slate-50 rounded-2xl border border-white flex justify-between items-center text-[10px]">
-                            <div><p class="font-bold uppercase text-slate-700 italic">${d.type}</p><p class="text-slate-300 font-bold">${new Date(d.time).toLocaleTimeString()}</p></div>
-                            <div class="text-right"><p class="font-bold ${color} text-xs">Rp${d.amount.toLocaleString()}</p><p class="text-slate-300 uppercase font-black tracking-tighter">${d.status}</p></div>
+                        <div class="p-3 bg-slate-50 rounded-2xl border border-white flex justify-between items-center text-[10px] mb-2">
+                            <div><p class="font-bold uppercase text-slate-700 italic">${d.type}</p></div>
+                            <div class="text-right"><p class="font-bold text-sky-600">Rp${d.amount.toLocaleString()}</p><p class="text-slate-300 uppercase">${d.status}</p></div>
                         </div>`);
                 });
-                document.getElementById('w-btn').disabled = isWait;
-                document.getElementById('w-msg').classList.toggle('hidden', !isWait);
             });
         }
 
         window.handleDepo = async () => {
             const amt = document.getElementById('d-amt').value, fl = document.getElementById('d-file').files[0];
-            if(!amt || !fl) return alert("Wajib isi nominal & lampirkan bukti!");
-            const btn = document.getElementById('d-btn'); btn.disabled = true; btn.innerText = "MENGIRIM...";
+            if(!amt || !fl) return alert("Lengkapi data!");
             const reader = new FileReader(); reader.readAsDataURL(fl);
             reader.onload = async () => {
                 await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, amount: parseInt(amt), proof: reader.result, status: 'pending', type: 'depo', time: Date.now() });
-                alert("Laporan depo berhasil dikirim!"); location.reload();
+                alert("Terkirim!"); location.reload();
             };
         };
 
         window.handleWD = async () => {
+            // PROTEKSI GANDA: Cek lagi status pending di sini
+            if(isWaitWD) return alert("Sabar! Masih ada WD yang pending. Tunggu diproses dulu.");
+
             const amt = parseInt(document.getElementById('w-amt').value), ph = document.getElementById('w-phone').value;
-            if(amt < 1000 || amt > uBal || !ph) return alert("Saldo tidak cukup atau data salah!");
+            if(amt < 1000 || amt > uBal || !ph) return alert("Saldo kurang atau data salah!");
+            
             await set(push(ref(db, 'transactions')), { uid: auth.currentUser.uid, amount: amt, phone: ph, status: 'pending', type: 'wd', time: Date.now() });
-            alert("Permintaan penarikan dikirim!"); location.reload();
+            alert("WD Berhasil dikirim!"); location.reload();
         };
 
-        window.logoutAllDevices = async () => {
-            if(confirm("Logout dari semua sesi?")) {
-                await remove(ref(db, `users/${auth.currentUser.uid}/sessions`));
-                await signOut(auth); location.reload();
-            }
-        };
+        window.logoutAllDevices = () => { if(confirm("Keluar?")) signOut(auth).then(() => location.reload()); };
     </script>
 </body>
 </html>
