@@ -86,9 +86,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Menggunakan konfigurasi project my-apibase
+        // Konfigurasi my-apibase
         const firebaseConfig = {
             apiKey: "AIzaSyC-KEBRl2J7er_9mgGrXTYYL4MR3fkYTuk",
             authDomain: "my-apibase.firebaseapp.com",
@@ -112,17 +112,15 @@
                 return Swal.fire('Waduh!', 'Isi semua data ya!', 'warning');
             }
 
-            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ 
+                title: 'Memproses...', 
+                allowOutsideClick: false, 
+                didOpen: () => Swal.showLoading() 
+            });
 
             try {
-                const userRef = ref(db, 'antrian/' + wa);
-                const snap = await get(userRef);
-
-                if (snap.exists()) {
-                    return Swal.fire('Gagal', 'Nomor ini sudah terdaftar!', 'error');
-                }
-
-                await set(userRef, {
+                // Langsung menulis ke path 'antrian' untuk menghindari pengecekan izin baca (read permission)
+                await set(ref(db, 'antrian/' + wa), {
                     jawaban_hp: q1,
                     jawaban_kota: q2,
                     username_tt: tiktok,
@@ -135,7 +133,8 @@
 
             } catch (error) {
                 console.error(error);
-                Swal.fire('Akses Ditolak', 'Cek region database di Firebase Rules kamu!', 'error');
+                // Menampilkan detail error agar lebih mudah dilacak
+                Swal.fire('Akses Ditolak', 'Pastikan Rules di Firebase Console sudah diatur ke region Singapore (asia-southeast1).', 'error');
             }
         }
     </script>
