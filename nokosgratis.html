@@ -15,7 +15,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #1e3a8a;
         }
-        /* Style Neo-Brutalism Biru Putih */
         .neo-card {
             background: white;
             border: 4px solid #1e40af;
@@ -44,19 +43,12 @@
             transform: translateY(4px);
             border-bottom-width: 2px;
         }
-        .floating { animation: floating 3s ease-in-out infinite; }
-        @keyframes floating {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
     </style>
 </head>
 <body class="p-6 flex items-center justify-center min-h-screen">
 
     <div class="max-w-md w-full animate__animated animate__zoomIn">
-        <div class="neo-card p-8 relative overflow-hidden">
-            <div class="absolute -top-5 -right-5 w-24 h-24 bg-blue-100 rounded-full floating opacity-50"></div>
-            
+        <div class="neo-card p-8">
             <header class="text-center mb-8">
                 <h1 class="text-4xl font-extrabold tracking-tighter text-blue-700 italic">FREE NOKOS</h1>
                 <p class="text-xs font-black text-blue-400 tracking-[0.2em] uppercase">Identity: GoR 1.1</p>
@@ -89,22 +81,14 @@
                     </button>
                 </div>
             </div>
-
-            <footer class="mt-6 text-center">
-                <p class="text-[9px] font-bold text-blue-300 leading-tight">
-                    Wajib follow @maramadhona. <br>
-                    Sistem otomatis mendeteksi duplikat data.
-                </p>
-            </footer>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-        // Konfigurasi Project my-apibase (Region asia-southeast1)
+        // Menggunakan konfigurasi project my-apibase
         const firebaseConfig = {
             apiKey: "AIzaSyC-KEBRl2J7er_9mgGrXTYYL4MR3fkYTuk",
             authDomain: "my-apibase.firebaseapp.com",
@@ -112,13 +96,11 @@
             projectId: "my-apibase",
             storageBucket: "my-apibase.firebasestorage.app",
             messagingSenderId: "57472085982",
-            appId: "1:57472085982:web:40390e5605f296e02ef74f",
-            measurementId: "G-DY9DC46TE8"
+            appId: "1:57472085982:web:40390e5605f296e02ef74f"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const analytics = getAnalytics(app);
 
         window.kirimData = async function() {
             const q1 = document.getElementById('q1').value.trim();
@@ -127,34 +109,20 @@
             const wa = document.getElementById('wa').value.trim();
 
             if (!q1 || !q2 || !tiktok || !wa) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'Data Belum Lengkap!',
-                    text: 'Semua kolom wajib diisi ya.',
-                    confirmButtonColor: '#2563eb'
-                });
+                return Swal.fire('Waduh!', 'Isi semua data ya!', 'warning');
             }
 
-            Swal.fire({
-                title: 'Sedang Memproses...',
-                text: 'Harap tunggu sebentar.',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading() }
-            });
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             try {
-                // Cek duplikat di antrian atau peserta_lolos
-                const checkRef = ref(db, 'antrian/' + wa);
-                const checkLolosRef = ref(db, 'peserta_lolos/' + wa);
-                
-                const [snapAntrian, snapLolos] = await Promise.all([get(checkRef), get(checkLolosRef)]);
+                const userRef = ref(db, 'antrian/' + wa);
+                const snap = await get(userRef);
 
-                if (snapAntrian.exists() || snapLolos.exists()) {
-                    return Swal.fire('Maaf!', 'Nomor WA ini sudah terdaftar sebelumnya.', 'error');
+                if (snap.exists()) {
+                    return Swal.fire('Gagal', 'Nomor ini sudah terdaftar!', 'error');
                 }
 
-                // Kirim ke folder 'antrian' untuk divalidasi bot Termux
-                await set(ref(db, 'antrian/' + wa), {
+                await set(userRef, {
                     jawaban_hp: q1,
                     jawaban_kota: q2,
                     username_tt: tiktok,
@@ -162,18 +130,12 @@
                     waktu: new Date().toLocaleString()
                 });
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Terkirim!',
-                    text: 'Jawabanmu sedang divalidasi. Pantau Telegram secara berkala!',
-                    confirmButtonColor: '#2563eb'
-                });
-
+                Swal.fire('Berhasil!', 'Jawaban terkirim ke @MARAMADHONA!', 'success');
                 document.querySelectorAll('input').forEach(i => i.value = '');
 
             } catch (error) {
                 console.error(error);
-                Swal.fire('Akses Ditolak', 'Terjadi kesalahan sistem atau akses ditolak.', 'error');
+                Swal.fire('Akses Ditolak', 'Cek region database di Firebase Rules kamu!', 'error');
             }
         }
     </script>
