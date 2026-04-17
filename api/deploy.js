@@ -2,21 +2,24 @@
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
-    const { sub, content, email } = req.body;
+    // Menangkap parameter 'path' dari dashboard
+    const { sub, path, content, email } = req.body;
     
-    // TOKEN DIAMBIL DARI VERCEL ENVIRONMENT VARIABLE (AMAN!)
     const GITHUB_TOKEN = process.env.GIT_TOKEN; 
-    const GITHUB_REPO = "username/repo-kamu"; 
+    const GITHUB_REPO = "candratrirama-cell/Racloud"; // Ganti dengan repo milikmu
+
+    // File diletakkan di deployments/[subdomain]/[jalur-file-asli]
+    const fullPath = `deployments/${sub}/${path}`;
 
     try {
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/deployments/${sub}/index.html`, {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${fullPath}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `token ${GITHUB_TOKEN}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: `XND Deploy: ${sub} by ${email}`,
+                message: `XND Multi-file Deploy: ${fullPath} by ${email}`,
                 content: content
             })
         });
