@@ -3,47 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RaCloud - Verifikasi</title>
+    <title>XND Free Deploy | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;900&display=swap');
+        
+        body {
+            background-color: #00FF94;
+            font-family: 'Public Sans', sans-serif;
+            color: #000;
+        }
+
+        .neo-brutal {
+            background: #FFFFFF;
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px #000;
+        }
+
+        .neo-btn {
+            background: #FF3366;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            font-weight: 900;
+            text-transform: uppercase;
+            transition: 0.1s;
+        }
+
+        .neo-btn:active {
+            box-shadow: 0px 0px 0px #000;
+            transform: translate(4px, 4px);
+        }
+
+        .neo-btn:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
+
+        .neo-input {
+            border: 3px solid #000;
+            padding: 12px;
+            font-weight: bold;
+            outline: none;
+            width: 100%;
+        }
+
+        .status-badge {
+            background: #FFFF00;
+            border: 2px solid #000;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        #login-screen { display: flex; }
+        #dashboard { display: none; }
+    </style>
 </head>
-<body class="bg-slate-50 h-screen flex items-center justify-center p-6">
-    <div id="main-card" class="bg-white p-8 rounded-[40px] shadow-xl border border-slate-100 w-full max-w-md text-center">
-        <h1 class="font-black text-sky-600 text-3xl italic uppercase tracking-tighter mb-4">RaCloud</h1>
-        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-8">Verifikasi Keamanan</p>
-        <button onclick="verifikasi()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-sm tracking-widest shadow-lg active:scale-95 transition-transform">
-            Saya Bukan Robot
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div id="login-screen" class="neo-brutal p-10 flex flex-col items-center gap-6 max-w-sm w-full bg-white">
+        <div class="bg-black text-white px-4 py-1 text-sm font-bold uppercase tracking-widest">Secure Version</div>
+        <h1 class="text-5xl font-black tracking-tighter text-center">XND<br>DEPLOY</h1>
+        <p class="text-center font-bold border-t-2 border-black pt-4 text-sm">Deploy website HTML kamu ke subdomain xdn.web.id secara instan.</p>
+        <button onclick="login()" class="neo-btn w-full py-4 text-white text-lg">
+            Masuk dengan Google
         </button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <div id="dashboard" class="w-full max-w-5xl flex-col gap-6">
+        
+        <header class="neo-brutal p-6 flex flex-col md:flex-row justify-between items-center bg-white gap-4">
+            <div>
+                <h2 class="text-3xl font-black tracking-tighter uppercase">XND Free Deploy</h2>
+                <div class="flex gap-2 mt-1">
+                    <span class="status-badge">SECURE GATEWAY</span>
+                    <span id="user-email-display" class="font-bold text-xs"></span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 bg-gray-100 p-2 border-2 border-black">
+                <img id="user-photo" src="" class="w-10 h-10 border-2 border-black bg-white">
+                <div class="flex flex-col">
+                    <span id="user-name" class="font-black text-sm uppercase leading-none">User</span>
+                    <button onclick="logout()" class="text-xs font-bold underline hover:text-red-600 text-left">Keluar</button>
+                </div>
+            </div>
+        </header>
 
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 neo-brutal p-8 bg-white">
+                <h3 class="text-2xl font-black mb-6 uppercase italic">/ Deployment Baru</h3>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block font-black mb-2 uppercase">Nama Subdomain</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="subdomain" class="neo-input" placeholder="rizzstore">
+                            <span class="font-black text-lg">.xdn.web.id</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-black mb-2 uppercase">File HTML (index.html)</label>
+                        <input type="file" id="fileInput" class="neo-input bg-yellow-50" accept=".html">
+                    </div>
+
+                    <button onclick="startDeploy()" id="deployBtn" class="neo-btn w-full py-5 text-2xl text-white">
+                        🚀 DEPLOY SEKARANG
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="neo-brutal p-6 bg-yellow-300">
+                    <h4 class="font-black uppercase mb-4">Situs Saya</h4>
+                    <div id="project-list" class="space-y-3">
+                        <p class="italic text-sm font-bold opacity-50">Belum ada aktivitas...</p>
+                    </div>
+                </div>
+                
+                <div class="neo-brutal p-6 bg-white">
+                    <h4 class="font-black uppercase mb-2 text-blue-600">Console Output</h4>
+                    <div id="log-box" class="bg-black text-green-400 p-3 text-[10px] font-mono h-32 overflow-y-auto">
+                        > XND System Ready...<br>
+                        > Menunggu perintah...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI FIREBASE ---
         const firebaseConfig = {
-            apiKey: "AIzaSyC-KEBRl2J7er_9mgGrXTYYL4MR3fkYTuk",
-            authDomain: "my-apibase.firebaseapp.com",
-            databaseURL: "https://my-apibase-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "my-apibase",
-            appId: "1:57472085982:web:40390e5605f296e02ef74f"
+            apiKey: "ISI_API_KEY_KAMU",
+            authDomain: "PROJECT_ID.firebaseapp.com",
+            projectId: "PROJECT_ID",
+            appId: "APP_ID"
         };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-        // Pantau Status Website dari Bot
-        onValue(ref(db, 'system_settings/site_status'), (snap) => {
-            const s = snap.val();
-            if(s === 'close') {
-                document.body.innerHTML = `<div class="h-screen w-full flex items-center justify-center bg-slate-900 text-white font-black uppercase italic">Website Sedang Offline</div>`;
-            } else if(s === 'main') {
-                document.body.innerHTML = `<div class="h-screen w-full flex items-center justify-center bg-amber-50 text-amber-900 font-black uppercase italic">Website Maintenance</div>`;
+        // Helper Log
+        function addLog(msg) {
+            const logBox = document.getElementById('log-box');
+            logBox.innerHTML += `> ${msg}<br>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // Auth Logic
+        function login() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        auth.onAuthStateChanged(user => {
+            const loginScreen = document.getElementById('login-screen');
+            const dashboard = document.getElementById('dashboard');
+            
+            if (user) {
+                loginScreen.style.display = 'none';
+                dashboard.style.display = 'flex';
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-photo').src = user.photoURL;
+                document.getElementById('user-email-display').innerText = user.email;
+                addLog(`Sesi aktif: ${user.email}`);
+            } else {
+                loginScreen.style.display = 'flex';
+                dashboard.style.display = 'none';
             }
         });
 
-        window.verifikasi = () => {
-            const sid = "RA-TEMP-" + Math.random().toString(36).substring(2, 10);
-            sessionStorage.setItem('temp_sid', sid);
-            window.location.href = "landing.html";
-        };
+        // Deploy Logic (AMANKAN TOKEN!)
+        async function startDeploy() {
+            const sub = document.getElementById('subdomain').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const file = document.getElementById('fileInput').files[0];
+            const btn = document.getElementById('deployBtn');
+
+            if (!sub || !file) return alert("Subdomain atau file belum dipilih!");
+
+            addLog(`Menyiapkan paket untuk ${sub}...`);
+            btn.innerText = "MENGIRIM...";
+            btn.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64Content = e.target.result.split(',')[1];
+                
+                try {
+                    // Kita menembak ke backend kita sendiri agar token tidak bocor
+                    const res = await fetch('/api/deploy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sub: sub,
+                            content: base64Content,
+                            email: auth.currentUser.email
+                        })
+                    });
+
+                    if (res.ok) {
+                        addLog(`BERHASIL! Situs ${sub} telah online.`);
+                        updateList(sub);
+                        alert("Berhasil! Butuh waktu sekitar 1 menit agar DNS sinkron.");
+                    } else {
+                        const errData = await res.json();
+                        addLog(`GAGAL: ${errData.error || 'Terjadi kesalahan'}`);
+                    }
+                } catch (err) {
+                    addLog(`FATAL: Koneksi terputus.`);
+                }
+                
+                btn.innerText = "DEPLOY SEKARANG";
+                btn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateList(name) {
+            const list = document.getElementById('project-list');
+            if(list.querySelector('p')) list.innerHTML = '';
+            
+            const div = document.createElement('div');
+            div.className = "p-3 border-2 border-black bg-white shadow-[4px_4px_0px_#000] flex justify-between items-center";
+            div.innerHTML = `
+                <span class="font-black text-[10px] uppercase truncate mr-2">${name}.xdn.web.id</span>
+                <a href="https://${name}.xdn.web.id" target="_blank" class="bg-black text-white px-2 py-1 text-[10px] font-black uppercase">Link</a>
+            `;
+            list.prepend(div);
+        }
     </script>
 </body>
 </html>
