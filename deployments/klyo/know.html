@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Slow - Admin Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="p-8">
+    <h1 class="text-3xl font-black text-blue-500 mb-8 tracking-tighter">SLOW ADMIN <span class="text-white text-xs font-normal border px-2 py-1 ml-4 rounded uppercase">Master Access</span></h1>
+
+    <div class="grid grid-cols-1 gap-8">
+        <div class="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+            <h2 class="text-xl font-bold mb-6">Semua Project Pengguna</h2>
+            <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAa1YQqXXUn3ssriyyhl6mYHo47-rOcnmg",
+            databaseURL: "https://tools-ab6a6-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tools-ab6a6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        onValue(ref(db, 'deploys'), (snapshot) => {
+            const list = document.getElementById('admin-list');
+            list.innerHTML = '';
+            snapshot.forEach((child) => {
+                const name = child.key;
+                const data = child.val();
+                list.innerHTML += `
+                <div class="bg-black p-5 rounded-2xl border border-zinc-800 shadow-xl">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-blue-500 font-bold text-lg leading-none">/${name}</p>
+                            <p class="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest">Author: ${data.author}</p>
+                        </div>
+                        <div class="bg-blue-500/10 text-blue-500 text-[10px] px-2 py-1 rounded font-bold">👁 ${data.views || 0} VIEWS</div>
+                    </div>
+                    <textarea id="code-${name}" class="w-full h-32 bg-zinc-900 p-3 rounded-xl text-[10px] font-mono text-zinc-400 mb-4 border-none">${data.code}</textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="adminSave('${name}')" class="bg-green-600 py-2 rounded-lg text-xs font-bold">Simpan Edit</button>
+                        <button onclick="adminDelete('${name}')" class="bg-red-600 py-2 rounded-lg text-xs font-bold">Hapus Paksa</button>
+                    </div>
+                </div>`;
+            });
+        });
+
+        window.adminSave = async (name) => {
+            const newCode = document.getElementById(`code-${name}`).value;
+            await update(ref(db, 'deploys/' + name), { code: newCode });
+            alert("Project " + name + " berhasil diupdate!");
+        };
+
+        window.adminDelete = async (name) => {
+            if(confirm("Hapus paksa project ini?")) {
+                await remove(ref(db, 'deploys/' + name));
+            }
+        };
+    </script>
+</body>
+</html>
