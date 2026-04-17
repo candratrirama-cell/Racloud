@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XND Free Deploy | Dashboard</title>
+    <title>XND Cloud Deploy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -14,106 +14,112 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#2563eb',
-                        darkBg: '#0f172a',
-                        darkCard: '#1e293b'
-                    }
+                    colors: { primary: '#2563eb', darkBg: '#0f172a', darkCard: '#1e293b' }
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s; }
         .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-darkBg dark:text-slate-100 min-h-screen">
 
-    <nav class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-darkCard sticky top-0 z-50">
+    <nav class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-darkCard/80 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">X</div>
-                <span class="font-extrabold text-xl tracking-tight uppercase">XND <span class="text-primary">DEPLOY</span></span>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-primary to-blue-400 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-blue-500/20">X</div>
+                <span class="font-extrabold text-xl tracking-tighter">XND <span class="text-primary underline decoration-2 underline-offset-4">PLATFORM</span></span>
             </div>
             
             <div class="flex items-center gap-4">
-                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-xl">🌓</button>
-                <div id="user-nav" class="hidden items-center gap-3 border-l pl-4 border-slate-200 dark:border-slate-700">
-                    <img id="user-photo" src="" class="w-8 h-8 rounded-full border-2 border-primary">
-                    <button onclick="logout()" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg hover:bg-red-100 transition">LOGOUT</button>
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:scale-110 transition">🌓</button>
+                <div id="user-nav" class="hidden items-center gap-3 border-l pl-4 border-slate-200 dark:border-slate-800">
+                    <img id="user-photo" src="" class="w-9 h-9 rounded-full border-2 border-primary p-0.5">
+                    <button onclick="logout()" class="text-[10px] font-black tracking-widest text-red-500 hover:opacity-70 transition">LOGOUT</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div id="login-screen" class="flex flex-col items-center justify-center py-24 px-4">
-        <div class="bg-white dark:bg-darkCard p-10 rounded-3xl shadow-2xl max-w-md w-full text-center border border-slate-100 dark:border-slate-800">
-            <h1 class="text-3xl font-extrabold mb-3">Selamat Datang</h1>
-            <p class="text-slate-500 dark:text-slate-400 mb-8 font-medium">Masuk dengan Google untuk mulai deploy.</p>
-            <button onclick="login()" class="w-full py-4 px-6 bg-slate-900 dark:bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition">
+    <div id="login-screen" class="flex flex-col items-center justify-center py-32 px-4">
+        <div class="bg-white dark:bg-darkCard p-10 rounded-[2.5rem] shadow-2xl max-w-sm w-full text-center border border-white dark:border-slate-800">
+            <h1 class="text-4xl font-black mb-4 leading-tight text-slate-900 dark:text-white">Start your <br><span class="text-primary">Journey.</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 text-sm">Deploy folder website kamu dalam hitungan detik ke subdomain gratis.</p>
+            <button onclick="login()" class="w-full py-4 px-6 bg-slate-900 dark:bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:shadow-xl transition-all active:scale-95">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
-                Masuk dengan Google
+                Connect with Google
             </button>
         </div>
     </div>
 
-    <main id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        <div class="lg:col-span-2 space-y-6">
-            <div class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-                <h2 class="text-2xl font-extrabold mb-8 flex items-center gap-3">
-                    <span class="w-2 h-8 bg-primary rounded-full"></span>
-                    Create Project
-                </h2>
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white dark:bg-darkCard p-8 md:p-10 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-black italic">/ New Deploy</h2>
+                    <span class="px-3 py-1 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold rounded-full">SYSTEM ONLINE</span>
+                </div>
                 
-                <div class="space-y-6">
+                <div class="space-y-8">
                     <div>
-                        <label class="block text-sm font-bold mb-3 text-slate-600 dark:text-slate-400 uppercase">Subdomain Name</label>
-                        <div class="flex items-center">
-                            <input type="text" id="subdomain" class="w-full bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 p-4 rounded-l-2xl outline-none focus:ring-2 focus:ring-primary transition" placeholder="project-kamu">
-                            <span class="bg-slate-100 dark:bg-slate-800 border border-l-0 border-slate-200 dark:border-slate-700 p-4 rounded-r-2xl font-black text-slate-500">.xdn.web.id</span>
+                        <label class="block text-[10px] font-black mb-3 text-slate-400 uppercase tracking-widest">Subdomain & Domain</label>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input type="text" id="subdomain" class="flex-1 bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-primary font-bold" placeholder="nama-toko">
+                            <select id="domainSelect" class="bg-white dark:bg-slate-800 border-2 border-primary p-4 rounded-2xl font-black text-primary outline-none cursor-pointer">
+                                <option value="xdn.web.id">.xdn.web.id</option>
+                                <option value="rzone.web.id">.rzone.web.id</option>
+                            </select>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold mb-3 text-slate-600 dark:text-slate-400 uppercase">Project Folder</label>
-                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-10 text-center relative hover:border-primary group transition-all">
+                        <label class="block text-[10px] font-black mb-3 text-slate-400 uppercase tracking-widest">Website Files</label>
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-[2rem] p-12 text-center relative hover:border-primary transition group">
                             <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" webkitdirectory directory multiple>
-                            <div class="space-y-3">
-                                <p id="file-name" class="font-bold text-slate-600 dark:text-slate-300">Klik & Pilih Folder Project</p>
-                                <p id="file-count" class="text-xs font-semibold text-primary"></p>
+                            <div class="space-y-4">
+                                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto group-hover:rotate-6 transition">
+                                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                </div>
+                                <p id="file-name" class="font-bold text-slate-700 dark:text-slate-300">Pilih Folder Project</p>
+                                <p id="file-count" class="text-xs font-bold text-primary"></p>
                             </div>
                         </div>
                     </div>
 
-                    <button onclick="startDeploy()" id="deployBtn" class="w-full py-5 bg-primary text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-500/20 hover:scale-[1.01] transition active:scale-[0.99]">
-                        START DEPLOYMENT
+                    <button onclick="startDeploy()" id="deployBtn" class="w-full py-5 bg-primary text-white rounded-[1.5rem] font-black text-xl shadow-2xl shadow-blue-500/30 hover:translate-y-[-2px] transition-all active:scale-95 disabled:bg-slate-300 disabled:shadow-none">
+                        LAUNCH WEBSITE
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="space-y-6">
-            <div class="bg-white dark:bg-darkCard p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
-                <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-4 italic">/ Activity Log</h3>
-                <div id="log-box" class="bg-slate-900 text-green-400 p-4 rounded-2xl font-mono text-[10px] h-48 overflow-y-auto border-2 border-slate-800">
-                    <div class="opacity-50">> System ready...</div>
+        <div class="space-y-8">
+            <div class="bg-white dark:bg-darkCard p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-6 italic">/ Live Monitor</h3>
+                <div id="log-box" class="bg-slate-900 text-green-400 p-5 rounded-2xl font-mono text-[9px] h-52 overflow-y-auto leading-loose border-2 border-slate-800 scrollbar-hide">
+                    <div class="opacity-50">> Initializing XND-OS...</div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-darkCard p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-4 uppercase">My Sites</h3>
-                <div id="project-list" class="space-y-3">
-                    <p class="text-sm italic text-slate-400">Belum ada situs.</p>
+            <div class="bg-white dark:bg-darkCard p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-[10px] uppercase tracking-widest text-slate-400 mb-6 italic">/ My Domains</h3>
+                <div id="project-list" class="space-y-4">
+                    <p class="text-xs italic text-slate-400 text-center py-4">Situs Anda akan muncul di sini.</p>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // --- KONFIGURASI FIREBASE ---
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyC-KEBRl2J7er_9mgGrXTYYL4MR3fkYTuk",
             authDomain: "my-apibase.firebaseapp.com",
@@ -129,11 +135,12 @@
 
         function addLog(msg, color = 'text-green-400') {
             const box = document.getElementById('log-box');
-            box.innerHTML += `<div class="${color}">> ${msg}</div>`;
+            const time = new Date().toLocaleTimeString([], {hour12: false});
+            box.innerHTML += `<div class="${color}"><span class="text-slate-600">[${time}]</span> ${msg}</div>`;
             box.scrollTop = box.scrollHeight;
         }
 
-        // Auth Logic
+        // Auth
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider);
@@ -142,22 +149,20 @@
         function logout() { auth.signOut(); }
 
         auth.onAuthStateChanged(user => {
-            const loginScreen = document.getElementById('login-screen');
-            const dashboard = document.getElementById('dashboard');
-            const userNav = document.getElementById('user-nav');
-
+            const ls = document.getElementById('login-screen');
+            const ds = document.getElementById('dashboard');
+            const un = document.getElementById('user-nav');
             if (user) {
-                loginScreen.classList.add('hidden');
-                dashboard.classList.remove('hidden');
-                userNav.classList.remove('hidden');
-                userNav.classList.add('flex');
+                ls.classList.add('hidden');
+                ds.classList.remove('hidden');
+                un.classList.replace('hidden', 'flex');
                 document.getElementById('user-photo').src = user.photoURL;
                 loadUserProjects();
-                addLog(`Logged in as ${user.email}`, 'text-blue-400');
+                addLog(`Authorized: ${user.email}`, 'text-blue-400');
             } else {
-                loginScreen.classList.remove('hidden');
-                dashboard.classList.add('hidden');
-                userNav.classList.add('hidden');
+                ls.classList.remove('hidden');
+                ds.classList.add('hidden');
+                un.classList.replace('flex', 'hidden');
             }
         });
 
@@ -167,73 +172,83 @@
             if (files.length > 0) {
                 const folderName = files[0].webkitRelativePath.split('/')[0];
                 document.getElementById('file-name').innerText = folderName;
-                document.getElementById('file-count').innerText = `${files.length} file terpilih`;
+                document.getElementById('file-count').innerText = `${files.length} Files Ready`;
+                addLog(`Folder detected: ${folderName}`);
             }
         });
 
-        // Deploy Logic
+        // Deploy Engine
         async function startDeploy() {
-            const sub = document.getElementById('subdomain').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const subInput = document.getElementById('subdomain').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            const selectedDomain = document.getElementById('domainSelect').value;
+            const fullSub = `${subInput}.${selectedDomain}`;
             const files = document.getElementById('fileInput').files;
             const btn = document.getElementById('deployBtn');
 
-            if (!sub || files.length === 0) return alert("Isi subdomain dan pilih folder!");
+            if (!subInput || files.length === 0) return alert("Pilih nama dan folder project!");
 
-            // Validasi index.html
             const hasIndex = Array.from(files).some(f => f.webkitRelativePath.endsWith('/index.html') || f.name === 'index.html');
-            if (!hasIndex) return alert("Folder wajib berisi index.html!");
+            if (!hasIndex) return alert("Wajib ada file index.html di dalam folder!");
 
             btn.disabled = true;
-            btn.innerText = "CHECKING...";
+            btn.innerText = "PREPARING...";
 
             try {
-                // Cek kepemilikan
-                const snap = await db.ref('deployments/' + sub).once('value');
+                // Check availability
+                addLog(`Verifying: ${fullSub}`);
+                const snap = await db.ref('deployments/' + subInput).once('value');
                 if (snap.exists() && snap.val().owner !== auth.currentUser.email) {
-                    alert("Subdomain sudah diambil orang lain!");
-                    throw new Error("Ownership conflict");
+                    alert("Maaf, subdomain ini sudah diklaim orang lain.");
+                    throw new Error("Ownership restricted");
                 }
 
-                btn.innerText = "DEPLOYING...";
-                let uploaded = 0;
+                btn.innerText = "UPLOADING...";
+                let uploadedCount = 0;
 
+                // Loop files
                 for (let file of files) {
                     const parts = file.webkitRelativePath.split('/');
-                    parts.shift(); // Buang folder root
+                    parts.shift();
                     const relativePath = parts.join('/');
                     if (!relativePath) continue;
 
                     const base64 = await toBase64(file);
-                    addLog(`Uploading: ${relativePath}...`);
+                    addLog(`Pushing: ${relativePath}`);
 
                     const res = await fetch('/api/deploy', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            sub: sub,
+                            sub: subInput,
+                            domain: selectedDomain,
                             path: relativePath,
                             content: base64,
                             email: auth.currentUser.email
                         })
                     });
-                    if (res.ok) uploaded++;
+                    if (res.ok) uploadedCount++;
                 }
 
-                if (uploaded > 0) {
-                    await db.ref('deployments/' + sub).set({
+                if (uploadedCount > 0) {
+                    // Update Database for Admin & Stats
+                    await db.ref('deployments/' + subInput).set({
                         owner: auth.currentUser.email,
-                        at: firebase.database.ServerValue.TIMESTAMP
+                        domain: selectedDomain,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        active: true,
+                        visits: 0 // Data awal statistik
                     });
-                    addLog(`SUCCESS: ${uploaded} files live!`, 'text-blue-400');
-                    alert("Deployment Berhasil!");
+
+                    addLog(`DEPLOY SUCCESS: ${fullSub}`, 'text-blue-400');
+                    alert(`Selesai! Website kamu live di: https://${fullSub}`);
                     loadUserProjects();
                 }
 
             } catch (err) {
-                addLog(`ERROR: ${err.message}`, 'text-red-500');
+                addLog(`ERR: ${err.message}`, 'text-red-500');
             } finally {
                 btn.disabled = false;
-                btn.innerText = "START DEPLOYMENT";
+                btn.innerText = "LAUNCH WEBSITE";
             }
         }
 
@@ -251,17 +266,24 @@
             let count = 0;
 
             snap.forEach(child => {
-                if (child.val().owner === auth.currentUser.email) {
+                const data = child.val();
+                if (data.owner === auth.currentUser.email) {
                     count++;
                     const name = child.key;
+                    const dom = data.domain || 'xdn.web.id';
                     list.innerHTML += `
-                        <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                            <span class="font-bold text-sm truncate">${name}.xdn.web.id</span>
-                            <a href="https://${name}.xdn.web.id" target="_blank" class="text-primary font-bold text-xs uppercase">Open</a>
+                        <div class="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-slate-100 dark:border-slate-800 flex justify-between items-center group hover:border-primary transition">
+                            <div class="truncate mr-2">
+                                <p class="text-[10px] font-black text-primary uppercase">${dom}</p>
+                                <p class="font-bold text-xs truncate text-slate-600 dark:text-slate-300">${name}.${dom}</p>
+                            </div>
+                            <a href="https://${name}.${dom}" target="_blank" class="p-2 bg-white dark:bg-darkCard rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
                         </div>`;
                 }
             });
-            if (count === 0) list.innerHTML = '<p class="text-sm italic text-slate-400">Belum ada situs.</p>';
+            if (count === 0) list.innerHTML = '<p class="text-[10px] text-center italic text-slate-400">Belum ada project aktif.</p>';
         }
     </script>
 </body>
