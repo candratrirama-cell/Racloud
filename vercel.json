@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<name>.*)\\.xdn\\.web\\.id"
+        }
+      ],
+      "destination": "/deployments/:name/:path*"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "rzone\\.web\\.id"
+        }
+      ],
+      "destination": "/dashboard/:path*"
+    }
+  ]
+}
