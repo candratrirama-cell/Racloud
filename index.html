@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XND | FREE DEPLOY</title>
+    <title>XND Free Deploy | Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -12,12 +12,21 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: { extend: { colors: { primary: '#2563eb', darkBg: '#0f172a', darkCard: '#1e293b' } } }
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b'
+                    }
+                }
+            }
         }
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-darkBg dark:text-slate-100 min-h-screen">
@@ -25,89 +34,189 @@
     <nav class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-darkCard sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">X</div>
-                <span class="font-extrabold text-xl tracking-tight uppercase">XND Deploy</span>
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/50">X</div>
+                <span class="font-extrabold text-xl tracking-tight uppercase">XND <span class="text-primary">DEPLOY</span></span>
             </div>
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700">🌙</button>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-xl">🌓</button>
+                <div id="user-nav" class="hidden items-center gap-3 border-l pl-4 border-slate-200 dark:border-slate-700">
+                    <img id="user-photo" src="" class="w-8 h-8 rounded-full border-2 border-primary">
+                    <button onclick="logout()" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg hover:bg-red-100 transition">LOGOUT</button>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <main id="dashboard" class="max-w-4xl mx-auto px-4 py-10">
-        <div class="bg-white dark:bg-darkCard p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-            <h2 class="text-xl font-bold mb-6 italic">/ New Deployment (Folder Support)</h2>
-            
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Nama Subdomain</label>
-                    <div class="flex items-center">
-                        <input type="text" id="subdomain" class="w-full bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-600 p-3 rounded-l-xl outline-none" placeholder="my-web">
-                        <span class="bg-slate-100 dark:bg-slate-700 border border-l-0 border-slate-200 dark:border-slate-600 p-3 rounded-r-xl font-bold">.xdn.web.id</span>
-                    </div>
-                </div>
+    <div id="login-screen" class="flex flex-col items-center justify-center py-24 px-4">
+        <div class="bg-white dark:bg-darkCard p-10 rounded-3xl shadow-2xl max-w-md w-full text-center border border-slate-100 dark:border-slate-800">
+            <div class="inline-block p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl mb-6">
+                <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+            </div>
+            <h1 class="text-3xl font-extrabold mb-3">XND Gate</h1>
+            <p class="text-slate-500 dark:text-slate-400 mb-8 font-medium">Masuk menggunakan Google untuk mengelola situs Anda.</p>
+            <button onclick="login()" class="w-full py-4 px-6 bg-slate-900 dark:bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition duration-200">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
+                Masuk dengan Google
+            </button>
+        </div>
+    </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Pilih Folder Project</label>
-                    <div class="border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-xl p-10 text-center relative hover:border-primary transition">
-                        <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" webkitdirectory directory multiple>
-                        <p id="file-name" class="text-sm font-medium text-slate-500">Klik di sini untuk pilih folder</p>
-                        <p id="file-count" class="text-xs mt-2 font-bold text-primary"></p>
+    <main id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
+                <h2 class="text-2xl font-extrabold mb-8 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-primary rounded-full"></span>
+                    Create Project
+                </h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold mb-3 text-slate-600 dark:text-slate-400">SUBDOMAIN NAME</label>
+                        <div class="flex items-center shadow-sm">
+                            <input type="text" id="subdomain" class="w-full bg-slate-50 dark:bg-darkBg border border-slate-200 dark:border-slate-700 p-4 rounded-l-2xl outline-none focus:ring-2 focus:ring-primary transition" placeholder="my-store">
+                            <span class="bg-slate-100 dark:bg-slate-800 border border-l-0 border-slate-200 dark:border-slate-700 p-4 rounded-r-2xl font-black text-slate-500">.xdn.web.id</span>
+                        </div>
                     </div>
-                    <p class="text-[10px] mt-2 text-slate-400">*Wajib ada file index.html di dalam folder.</p>
-                </div>
 
-                <button onclick="startDeploy()" id="deployBtn" class="w-full py-4 bg-primary text-white rounded-xl font-bold">Luncurkan Website</button>
+                    <div>
+                        <label class="block text-sm font-bold mb-3 text-slate-600 dark:text-slate-400">PROJECT FOLDER</label>
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-10 text-center relative hover:border-primary group transition-all duration-300">
+                            <input type="file" id="fileInput" class="absolute inset-0 opacity-0 cursor-pointer" webkitdirectory directory multiple>
+                            <div class="space-y-3">
+                                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/10 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition">
+                                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                </div>
+                                <p id="file-name" class="font-bold text-slate-600 dark:text-slate-300">Pilih Folder Website</p>
+                                <p id="file-count" class="text-xs font-semibold text-primary"></p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] mt-3 font-medium text-slate-400">*Wajib memiliki file 'index.html' di dalam folder utama.</p>
+                    </div>
+
+                    <button onclick="startDeploy()" id="deployBtn" class="w-full py-5 bg-primary text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 hover:translate-y-[-2px] active:translate-y-[1px] transition duration-200 disabled:bg-slate-400 disabled:shadow-none">
+                        START DEPLOYMENT
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div id="log-box" class="mt-6 bg-black text-green-400 p-4 rounded-xl font-mono text-xs h-40 overflow-y-auto">
-            > Ready to deploy...
+        <div class="space-y-6">
+            <div class="bg-white dark:bg-darkCard p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+                <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-4 italic">/ Activity Log</h3>
+                <div id="log-box" class="bg-slate-900 text-green-400 p-4 rounded-2xl font-mono text-[10px] h-48 overflow-y-auto leading-relaxed border-2 border-slate-800">
+                    <div class="opacity-50">> System ready...</div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-darkCard p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-4">My Sites</h3>
+                <div id="project-list" class="space-y-3">
+                    <p class="text-sm italic text-slate-400">Belum ada situs.</p>
+                </div>
+            </div>
         </div>
     </main>
 
     <script>
-        // ISI CONFIG FIREBASE KAMU DI SINI
-        const firebaseConfig = { apiKey: "...", authDomain: "...", projectId: "...", appId: "..." };
+        // --- FIREBASE CONFIG (SESUAIKAN DENGAN PUNYAMU) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-KEBRl2J7er_9mgGrXTYYL4MR3fkYTuk",
+            authDomain: "my-apibase.firebaseapp.com",
+            projectId: "my-apibase",
+            appId: "1:57472085982:web:40390e5605f296e02ef74f"
+        };
+        
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
         const auth = firebase.auth();
+        const db = firebase.database();
 
-        // Tampilkan jumlah file saat dipilih
+        // Dark Mode Logic
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function addLog(msg, color = 'text-green-400') {
+            const box = document.getElementById('log-box');
+            const time = new Date().toLocaleTimeString([], {hour: false, minute:'2-digit', second:'2-digit'});
+            box.innerHTML += `<div class="${color}"><span class="text-slate-600">[${time}]</span> ${msg}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // --- AUTH LOGIC (LOGIN/LOGOUT) ---
+        function login() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(err => alert("Login gagal: " + err.message));
+        }
+
+        function logout() {
+            if(confirm("Keluar dari sistem XND?")) {
+                auth.signOut();
+            }
+        }
+
+        // Monitor Status Login
+        auth.onAuthStateChanged(user => {
+            const loginScreen = document.getElementById('login-screen');
+            const dashboard = document.getElementById('dashboard');
+            const userNav = document.getElementById('user-nav');
+
+            if (user) {
+                loginScreen.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                userNav.classList.remove('hidden');
+                userNav.classList.add('flex');
+                document.getElementById('user-photo').src = user.photoURL;
+                addLog(`Authorized as ${user.email}`, 'text-blue-400');
+                loadUserProjects();
+            } else {
+                loginScreen.classList.remove('hidden');
+                dashboard.classList.add('hidden');
+                userNav.classList.add('hidden');
+                userNav.classList.replace('flex', 'hidden');
+            }
+        });
+
+        // --- DEPLOY LOGIC ---
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const files = e.target.files;
             if (files.length > 0) {
                 const folderName = files[0].webkitRelativePath.split('/')[0];
-                document.getElementById('file-name').innerText = "Folder: " + folderName;
-                document.getElementById('file-count').innerText = `${files.length} file terdeteksi.`;
+                document.getElementById('file-name').innerText = folderName;
+                document.getElementById('file-count').innerText = `${files.length} file terpilih`;
+                addLog(`Folder loaded: ${folderName}`);
             }
         });
-
-        function addLog(msg, color = 'text-green-400') {
-            const box = document.getElementById('log-box');
-            box.innerHTML += `<div class="${color}">> ${msg}</div>`;
-            box.scrollTop = box.scrollHeight;
-        }
 
         async function startDeploy() {
             const sub = document.getElementById('subdomain').value.toLowerCase().replace(/[^a-z0-9-]/g, '');
             const files = document.getElementById('fileInput').files;
             const btn = document.getElementById('deployBtn');
 
-            if (!sub || files.length === 0) return alert("Data belum lengkap!");
+            if (!sub || files.length === 0) return alert("Subdomain & Folder wajib diisi!");
 
-            // Validasi keberadaan index.html
-            const hasIndex = Array.from(files).some(f => f.name === 'index.html');
-            if (!hasIndex) return alert("Folder harus punya index.html!");
+            // Validasi index.html
+            const hasIndex = Array.from(files).some(f => f.name === 'index.html' || f.webkitRelativePath.endsWith('/index.html'));
+            if (!hasIndex) return alert("Folder wajib berisi file index.html!");
+
+            // Cek Kepemilikan Subdomain di RTDB
+            addLog(`Verifying subdomain: ${sub}...`);
+            const snap = await db.ref('deployments/' + sub).once('value');
+            if (snap.exists() && snap.val().owner !== auth.currentUser.email) {
+                addLog(`Conflict: Subdomain already taken!`, 'text-red-500');
+                return alert("Subdomain ini sudah dimiliki orang lain!");
+            }
 
             btn.disabled = true;
-            btn.innerText = "Mengirim Folder...";
-
+            btn.innerText = "Deploying...";
             let uploaded = 0;
 
             for (let file of files) {
-                // Ambil path relatif (misal: "css/style.css")
-                const pathParts = file.webkitRelativePath.split('/');
-                pathParts.shift(); // Buang nama folder utama
-                const relativePath = pathParts.join('/');
+                // Bersihkan path (buang nama folder parent)
+                const parts = file.webkitRelativePath.split('/');
+                parts.shift();
+                const relativePath = parts.join('/');
 
                 if (!relativePath) continue;
 
@@ -122,27 +231,28 @@
                             sub: sub,
                             path: relativePath,
                             content: base64,
-                            email: auth.currentUser?.email || "guest"
+                            email: auth.currentUser.email
                         })
                     });
 
                     if (res.ok) uploaded++;
                 } catch (err) {
-                    addLog(`Error pada file: ${relativePath}`, 'text-red-500');
+                    addLog(`Error uploading: ${relativePath}`, 'text-red-500');
                 }
             }
 
             if (uploaded > 0) {
                 await db.ref('deployments/' + sub).set({
-                    owner: auth.currentUser?.email || "guest",
-                    at: firebase.database.ServerValue.TIMESTAMP
+                    owner: auth.currentUser.email,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
-                addLog(`SELESAI! ${uploaded} file berhasil dikirim.`, 'text-blue-400');
-                alert("Sukses! Tunggu 1 menit agar Vercel sinkron.");
+                addLog(`Deployment Complete! ${uploaded} files live.`, 'text-blue-400');
+                alert("Berhasil! Website Anda akan online dalam 1 menit.");
+                loadUserProjects();
             }
 
             btn.disabled = false;
-            btn.innerText = "Luncurkan Website";
+            btn.innerText = "START DEPLOYMENT";
         }
 
         const toBase64 = file => new Promise((resolve, reject) => {
@@ -152,7 +262,35 @@
             reader.onerror = error => reject(error);
         });
 
-        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+        async function loadUserProjects() {
+            const list = document.getElementById('project-list');
+            list.innerHTML = '<div class="text-xs font-bold animate-pulse">Loading sites...</div>';
+            
+            const snap = await db.ref('deployments').once('value');
+            list.innerHTML = '';
+            let count = 0;
+
+            snap.forEach(child => {
+                if (child.val().owner === auth.currentUser.email) {
+                    count++;
+                    const name = child.key;
+                    const div = document.createElement('div');
+                    div.className = "p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center group";
+                    div.innerHTML = `
+                        <div class="truncate">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Subdomain</p>
+                            <p class="font-bold text-sm truncate">${name}</p>
+                        </div>
+                        <a href="https://${name}.xdn.web.id" target="_blank" class="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:text-primary transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    `;
+                    list.appendChild(div);
+                }
+            });
+
+            if (count === 0) list.innerHTML = '<p class="text-sm italic text-slate-400">Belum ada situs.</p>';
+        }
     </script>
 </body>
 </html>
