@@ -1,17 +1,16 @@
 /**
  * OLLAPS FLUM INTERACTIVE LOGIC ENGINE (index.js)
- * Nexray Infrastructure Framework V1.5
+ * Nexray Infrastructure Framework V1.5 - Fixed Response Link
  */
 
 // STATE MANAGEMENT UTAMA
-let currentChatModel = 'ollag'; // Default model aktif: 'ollag' atau 'ollfux'
+let currentChatModel = 'ollag'; 
 
-// INITIALIZATION (Menjalankan Lucide Icons di Awal Muat Halaman)
+// INITIALIZATION
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-    // Set fokus awal ke textarea input chat jika ada
     const chatInput = document.getElementById('chat-input');
     if (chatInput) chatInput.focus();
 });
@@ -33,25 +32,21 @@ function hideLoading() {
 
 // --- 2. NAVIGATION SYSTEM (TAB SWITCHER) ---
 function switchTab(tabName) {
-    // Sembunyikan seluruh kontainer tab yang ada
     document.querySelectorAll('.tab-content').forEach(el => {
         el.classList.add('hidden');
         el.classList.remove('flex');
     });
     
-    // Tampilkan tab aktif yang dipilih
     const activeTab = document.getElementById(`tab-${tabName}`);
     if (activeTab) {
         activeTab.classList.remove('hidden');
         activeTab.classList.add('flex');
     }
 
-    // Kembalikan semua tombol navigasi desktop ke status tidak aktif (default)
     document.querySelectorAll('.nav-btn-dt').forEach(btn => {
         btn.className = "nav-btn-dt flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold w-full transition text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200";
     });
     
-    // Kembalikan semua tombol navigasi mobile ke status tidak aktif (default)
     document.querySelectorAll('.nav-btn-mb').forEach(btn => {
         btn.className = "nav-btn-mb flex flex-col items-center gap-1 text-zinc-500 transition";
     });
@@ -59,11 +54,9 @@ function switchTab(tabName) {
     const dtBtn = document.getElementById(`btn-${tabName}-dt`);
     const mbBtn = document.getElementById(`btn-${tabName}-mb`);
     
-    // Skema warna aksen dinamis berdasarkan warna yang telah dikonfigurasi di HTML
     const colors = { chat: 'emerald', 'image-mod': 'purple', 'image-gen': 'blue', logo: 'cyan', music: 'amber' };
     const currentColor = colors[tabName] || 'emerald';
 
-    // Aktifkan visual premium untuk tombol terpilih
     if (dtBtn) {
         dtBtn.className = `nav-btn-dt flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold w-full transition bg-zinc-800 text-white border border-zinc-700/40`;
         const icon = dtBtn.querySelector('i');
@@ -79,8 +72,6 @@ function switchTab(tabName) {
 // --- 3. AI ASSISTANT CHAT BOT ENGINE ---
 function setChatModel(model) {
     currentChatModel = model;
-    
-    // Reset style kelas tombol model selector
     const btnOllag = document.getElementById('model-ollag');
     const btnOllfux = document.getElementById('model-ollfux');
     
@@ -102,7 +93,6 @@ function sendChatMessage() {
 
     if (!msg) return;
 
-    // Append pesan pengguna ke dalam feed obrolan
     const userMsgHtml = `
         <div class="flex gap-4 items-start justify-end">
             <div class="bg-zinc-800 p-4 rounded-2xl border border-zinc-700/30 max-w-[85%]">
@@ -111,9 +101,8 @@ function sendChatMessage() {
         </div>
     `;
     wrapper.insertAdjacentHTML('beforeend', userMsgHtml);
-    inputEl.value = ''; // Reset input area
+    inputEl.value = ''; 
 
-    // Simulasi respons bot cerdas berdasarkan model yang aktif
     showLoading('AI sedang merumuskan jawaban...');
     setTimeout(() => {
         hideLoading();
@@ -130,15 +119,14 @@ function sendChatMessage() {
             </div>
         `;
         wrapper.insertAdjacentHTML('beforeend', botMsgHtml);
-        lucide.createIcons(); // Re-render ikon robot baru
+        lucide.createIcons(); 
         
-        // Auto scroll otomatis ke dasar feed obrolan
         const container = document.getElementById('chat-container');
         if (container) container.scrollTop = container.scrollHeight;
     }, 1200);
 }
 
-// Shortcut Keyboard: Kirim pesan lewat Enter (bukan Shift+Enter) & reset lewat Ctrl+K
+// Keyboard Shortcut listener
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'chat-input') {
         e.preventDefault();
@@ -179,19 +167,16 @@ function processImageModification() {
     }
 
     showLoading('Melakukan kalkulasi struktur inpaint...');
-    // Simulasi Render Manipulasi Gambar
     setTimeout(() => {
         hideLoading();
         const resultDiv = document.getElementById('mod-result');
         const resultImg = document.getElementById('mod-result-img');
-        
-        // Contoh placeholder hasil visual modifikasi
         resultImg.src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop";
         resultDiv.classList.remove('hidden');
     }, 2500);
 }
 
-// --- 5. STUDIO GAMBAR ENGINE (OLLAGAMA CORE) ---
+// --- 5. STUDIO GAMBAR ENGINE ---
 function generateImage() {
     const engine = document.getElementById('gen-image-engine').value;
     const prompt = document.getElementById('gen-image-prompt').value.trim();
@@ -202,19 +187,16 @@ function generateImage() {
     }
 
     showLoading(`Menyusun partikel visual via engine ${engine}...`);
-    // Simulasi Komposisi Generative Gambar AI
     setTimeout(() => {
         hideLoading();
         const resultDiv = document.getElementById('gen-result');
         const resultImg = document.getElementById('gen-result-img');
-        
-        // Contoh placeholder hasil visual AI Studio
         resultImg.src = "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=600&auto=format&fit=crop";
         resultDiv.classList.remove('hidden');
     }, 3000);
 }
 
-// --- 6. LOGO GENERATOR OLLAGO 131 FEATURE (API INTEGRATED) ---
+// --- 6. LOGO GENERATOR OLLAGO 131 (FIXED: JSON LINK PARSING) ---
 async function generateLogo() {
     const prompt = document.getElementById('logo-prompt').value.trim();
 
@@ -228,18 +210,10 @@ async function generateLogo() {
 
     try {
         const response = await fetch(url);
-        const contentType = response.headers.get("content-type");
-        let resultImgUrl = '';
-
-        // Deteksi tipe konten respons dari API
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-            const data = await response.json();
-            resultImgUrl = data.result || data.url || data.image;
-        } else {
-            // Jika API mengembalikan file biner gambar langsung secara stream
-            const blob = await response.blob();
-            resultImgUrl = URL.createObjectURL(blob);
-        }
+        const data = await response.json();
+        
+        // Membaca property link dari JSON (menangani jika key bernama 'result', 'url', atau 'image')
+        const resultImgUrl = data.result || data.url || data.image;
 
         if (resultImgUrl) {
             const resultImg = document.getElementById('logo-result-img');
@@ -248,18 +222,18 @@ async function generateLogo() {
             resultImg.src = resultImgUrl;
             resultContainer.classList.remove('hidden');
         } else {
-            alert('Gagal mengekstrak tautan visual logo dari repositori.');
+            alert('Format JSON berubah atau link gambar tidak ditemukan.');
         }
     } catch (error) {
         console.error('Logo generation error:', error);
-        alert('Terjadi kegagalan komunikasi dengan endpoint server Ollago 131.');
+        alert('Gagal mengambil data dari API Logo.');
     } finally {
         hideLoading();
     }
 }
 
-// --- 7. AUDIO MUSIC GENERATOR (SUNO AUDIO ENGINE) ---
-function generateMusic() {
+// --- 7. AUDIO MUSIC GENERATOR (FIXED: API JSON LINK PARSING) ---
+async function generateMusic() {
     const prompt = document.getElementById('music-prompt').value.trim();
 
     if (!prompt) {
@@ -268,19 +242,35 @@ function generateMusic() {
     }
 
     showLoading('Mengonversi teks menjadi gelombang audio harmonis...');
-    // Simulasi Pembuatan Audio
-    setTimeout(() => {
-        hideLoading();
-        const resultDiv = document.getElementById('music-result');
-        const resultAudio = document.getElementById('music-result-audio');
+    // Menghubungkan langsung ke Core Suno API Nexray
+    const url = `https://api.nexray.eu.cc/ai/suno?prompt=${encodeURIComponent(prompt)}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
         
-        // Menggunakan berkas audio tiruan audio sintetis
-        resultAudio.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-        resultDiv.classList.remove('hidden');
-    }, 4000);
+        // Membaca property link dari JSON (menangani jika key bernama 'result', 'url', atau 'audio')
+        const audioUrl = data.result || data.url || data.audio;
+
+        if (audioUrl) {
+            const resultDiv = document.getElementById('music-result');
+            const resultAudio = document.getElementById('music-result-audio');
+            
+            resultAudio.src = audioUrl;
+            resultDiv.classList.remove('hidden');
+            resultAudio.load(); // Paksa pemutar audio memuat ulang link baru
+        } else {
+            alert('Format JSON berubah atau link audio tidak ditemukan.');
+        }
+    } catch (error) {
+        console.error('Music generation error:', error);
+        alert('Gagal mengambil data dari API Musik.');
+    } finally {
+        hideLoading();
+    }
 }
 
-// UTILITY FUNCTION (Mencegah kerentanan XSS pada injeksi kode obrolan)
+// UTILITY FUNCTION (Anti-XSS)
 function escapeHtml(text) {
     const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
     return text.replace(/[&<>"']/g, function(m) { return map[m]; });
