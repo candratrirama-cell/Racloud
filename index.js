@@ -1,6 +1,6 @@
 /**
  * OLLAPS FLUM INTERACTIVE LOGIC ENGINE (index.js)
- * Nexray Infrastructure Framework V1.5 - Fixed Response Link
+ * Nexray Infrastructure Framework V1.5 - Multi Logo & Audio URL Link Parser Verified
  */
 
 // STATE MANAGEMENT UTAMA
@@ -196,7 +196,7 @@ function generateImage() {
     }, 3000);
 }
 
-// --- 6. LOGO GENERATOR OLLAGO 131 (FIXED: JSON LINK PARSING) ---
+// --- 6. LOGO GENERATOR OLLAGO 131 (FIXED FOR 3 MULTIPLE LINKS IN JSON) ---
 async function generateLogo() {
     const prompt = document.getElementById('logo-prompt').value.trim();
 
@@ -212,14 +212,36 @@ async function generateLogo() {
         const response = await fetch(url);
         const data = await response.json();
         
-        // Membaca property link dari JSON (menangani jika key bernama 'result', 'url', atau 'image')
-        const resultImgUrl = data.result || data.url || data.image;
+        // Menangkap data array link (menangani berbagai penamaan properti di JSON)
+        const logoLinks = data.result || data.urls || data.images || data;
 
-        if (resultImgUrl) {
-            const resultImg = document.getElementById('logo-result-img');
-            const resultContainer = document.getElementById('logo-result');
-            
-            resultImg.src = resultImgUrl;
+        const gridContainer = document.getElementById('logo-grid-container');
+        const resultContainer = document.getElementById('logo-result');
+
+        if (Array.isArray(logoLinks) && logoLinks.length > 0) {
+            gridContainer.innerHTML = ''; // Bersihkan rendering lama
+
+            // Lakukan perulangan data array untuk menaruh ke-3 link gambar ke dalam struktur Grid
+            logoLinks.forEach((link, index) => {
+                const imgHtml = `
+                    <div class="relative group bg-zinc-950 p-1.5 rounded-xl border border-zinc-800 flex flex-col justify-between">
+                        <img src="${link}" alt="Opsi Logo ${index + 1}" class="w-full h-auto object-contain rounded-lg border border-zinc-900 shadow-md">
+                        <a href="${link}" target="_blank" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-lg">
+                            <span class="text-[9px] bg-zinc-900 text-zinc-200 px-2 py-1 rounded-md font-bold tracking-wide border border-zinc-700">Buka HD</span>
+                        </a>
+                    </div>
+                `;
+                gridContainer.insertAdjacentHTML('beforeend', imgHtml);
+            });
+
+            resultContainer.classList.remove('hidden');
+        } else if (typeof logoLinks === 'string') {
+            // Pengaman jika sewaktu-waktu API hanya mengembalikan single string URL tunggal
+            gridContainer.innerHTML = `
+                <div class="col-span-3 bg-zinc-950 p-1.5 rounded-xl border border-zinc-800">
+                    <img src="${logoLinks}" class="max-h-56 mx-auto object-contain rounded-lg">
+                </div>
+            `;
             resultContainer.classList.remove('hidden');
         } else {
             alert('Format JSON berubah atau link gambar tidak ditemukan.');
@@ -232,7 +254,7 @@ async function generateLogo() {
     }
 }
 
-// --- 7. AUDIO MUSIC GENERATOR (FIXED: API JSON LINK PARSING) ---
+// --- 7. AUDIO MUSIC GENERATOR (FIXED FOR URL LINK IN JSON) ---
 async function generateMusic() {
     const prompt = document.getElementById('music-prompt').value.trim();
 
@@ -242,14 +264,13 @@ async function generateMusic() {
     }
 
     showLoading('Mengonversi teks menjadi gelombang audio harmonis...');
-    // Menghubungkan langsung ke Core Suno API Nexray
     const url = `https://api.nexray.eu.cc/ai/suno?prompt=${encodeURIComponent(prompt)}`;
 
     try {
         const response = await fetch(url);
         const data = await response.json();
         
-        // Membaca property link dari JSON (menangani jika key bernama 'result', 'url', atau 'audio')
+        // Membaca property link string URL dari dalam response JSON
         const audioUrl = data.result || data.url || data.audio;
 
         if (audioUrl) {
@@ -258,7 +279,7 @@ async function generateMusic() {
             
             resultAudio.src = audioUrl;
             resultDiv.classList.remove('hidden');
-            resultAudio.load(); // Paksa pemutar audio memuat ulang link baru
+            resultAudio.load(); // Reload elemen audio HTML5 untuk membaca source link baru
         } else {
             alert('Format JSON berubah atau link audio tidak ditemukan.');
         }
