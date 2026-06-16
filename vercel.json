@@ -1,14 +1,10 @@
 {
-  "rewrites": [
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
     {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "(?<name>.*)\\.xdn\\.web\\.id" }],
-      "destination": "/deployments/:name/:path*"
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "rzone\\.web\\.id" }],
-      "destination": "/dashboard/:path*"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
