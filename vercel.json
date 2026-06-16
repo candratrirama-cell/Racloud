@@ -3,6 +3,14 @@
   "cleanUrls": true,
   "routes": [
     {
+      "src": "/api/ai",
+      "dest": "index.js"
+    },
+    {
+      "src": "/api/edit-image",
+      "dest": "index.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
