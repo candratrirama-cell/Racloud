@@ -1,342 +1,94 @@
-/**
- * OLLAPS FLUM INTERACTIVE LOGIC ENGINE (index.js)
- * Nexray Infrastructure Framework V1.5 - FULL LIVE API (NO SIMULATION)
- */
+// index.js (Vercel Serverless Function)
+import { IncomingForm } from 'formidable';
+import fs from 'fs';
 
-// STATE MANAGEMENT UTAMA
-let currentChatModel = 'ollag'; // Default model aktif
+export const config = {
+  api: {
+    bodyParser: false, // Dimatikan agar formidable bisa membaca form data gambar secara native
+  },
+};
 
-// INITIALIZATION
-document.addEventListener("DOMContentLoaded", () => {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-    const chatInput = document.getElementById('chat-input');
-    if (chatInput) chatInput.focus();
-});
+export default async function handler(req, res) {
+  const { method, query } = req;
 
-// --- 1. GLOBAL UI & HUB LOADING CONTROLS ---
-function showLoading(message = "Sedang Memproses...") {
-    const overlay = document.getElementById('loading-overlay');
-    const loadingText = document.getElementById('loading-text');
-    if (overlay && loadingText) {
-        loadingText.innerText = message.toUpperCase();
-        overlay.classList.remove('hidden');
-    }
-}
+  // Endpoint 1: GET Request untuk Chat, Image, dan Music
+  if (method === 'GET') {
+    const { type, model, text, prompt } = query;
 
-function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.classList.add('hidden');
-}
+    try {
+      let targetUrl = '';
 
-// --- 2. NAVIGATION SYSTEM (TAB SWITCHER) ---
-function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(el => {
-        el.classList.add('hidden');
-        el.classList.remove('flex');
-    });
-    
-    const activeTab = document.getElementById(`tab-${tabName}`);
-    if (activeTab) {
-        activeTab.classList.remove('hidden');
-        activeTab.classList.add('flex');
-    }
-
-    document.querySelectorAll('.nav-btn-dt').forEach(btn => {
-        btn.className = "nav-btn-dt flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold w-full transition text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200";
-    });
-    
-    document.querySelectorAll('.nav-btn-mb').forEach(btn => {
-        btn.className = "nav-btn-mb flex flex-col items-center gap-1 text-zinc-500 transition";
-    });
-
-    const dtBtn = document.getElementById(`btn-${tabName}-dt`);
-    const mbBtn = document.getElementById(`btn-${tabName}-mb`);
-    
-    const colors = { chat: 'emerald', 'image-mod': 'purple', 'image-gen': 'blue', logo: 'cyan', music: 'amber' };
-    const currentColor = colors[tabName] || 'emerald';
-
-    if (dtBtn) {
-        dtBtn.className = `nav-btn-dt flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold w-full transition bg-zinc-800 text-white border border-zinc-700/40`;
-        const icon = dtBtn.querySelector('i');
-        if (icon) icon.className = `w-4 h-4 text-${currentColor}-400`;
-    }
-    if (mbBtn) {
-        mbBtn.className = `nav-btn-mb flex flex-col items-center gap-1 text-white transition`;
-        const icon = mbBtn.querySelector('i');
-        if (icon) icon.className = `w-4 h-4 text-${currentColor}-400`;
-    }
-}
-
-// --- 3. AI ASSISTANT CHAT BOT ENGINE (LIVE API) ---
-function setChatModel(model) {
-    currentChatModel = model;
-    const btnOllag = document.getElementById('model-ollag');
-    const btnOllfux = document.getElementById('model-ollfux');
-    
-    if (btnOllag && btnOllfux) {
-        btnOllag.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition text-zinc-400 hover:text-zinc-200";
-        btnOllfux.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition text-zinc-400 hover:text-zinc-200";
-        
-        const activeBtn = document.getElementById(`model-${model}`);
-        if (activeBtn) {
-            activeBtn.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition bg-zinc-800 text-white border border-zinc-700/30 shadow-sm";
+      if (type === 'chat') {
+        if (model === 'ollag') {
+          targetUrl = `https://api.nexray.eu.cc/ai/gpt-3.5-turbo?text=${encodeURIComponent(text)}`;
+        } else if (model === 'ollfux') {
+          targetUrl = `https://api.nexray.eu.cc/ai/turbochat?text=${encodeURIComponent(text)}`;
         }
-    }
-}
+      } else if (type === 'image') {
+        if (model === 'ollagama2') {
+          targetUrl = `https://api.nexray.eu.cc/ai/magicstudio?prompt=${encodeURIComponent(prompt)}`;
+        } else if (model === 'ollagama5') {
+          targetUrl = `https://api.nexray.eu.cc/ai/ideogram?prompt=${encodeURIComponent(prompt)}`;
+        }
+      } else if (type === 'music') {
+        targetUrl = `https://api.nexray.eu.cc/ai/suno?prompt=${encodeURIComponent(prompt)}`;
+      }
 
-async function sendChatMessage() {
-    const inputEl = document.getElementById('chat-input');
-    const wrapper = document.getElementById('chat-messages-wrapper');
-    const msg = inputEl ? inputEl.value.trim() : '';
+      if (!targetUrl) return res.status(400).json({ error: 'Parameter tidak valid' });
 
-    if (!msg) return;
+      // Fetch data dari API Nexray
+      const response = await fetch(targetUrl);
+      
+      // Jika tipenya gambar/music dan mereturn stream data mentah (binary/image/audio URL)
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && (contentType.includes('image') || contentType.includes('audio'))) {
+         // Kirim URL balikan nexray langsung sebagai object respons terstruktur
+         return res.status(200).json({ url: targetUrl });
+      }
 
-    // Tampilkan pesan user ke layar
-    const userMsgHtml = `
-        <div class="flex gap-4 items-start justify-end">
-            <div class="bg-zinc-800 p-4 rounded-2xl border border-zinc-700/30 max-w-[85%]">
-                <p class="text-xs text-zinc-200 leading-relaxed">${escapeHtml(msg)}</p>
-            </div>
-        </div>
-    `;
-    wrapper.insertAdjacentHTML('beforeend', userMsgHtml);
-    inputEl.value = ''; 
+      // Jika response text/json biasa (seperti chat)
+      const dataText = await response.text();
+      return res.status(200).json({ result: dataText });
 
-    showLoading('AI sedang merumuskan jawaban...');
-    
-    // Pilih endpoint berdasarkan model aktif
-    const endpoint = currentChatModel === 'ollag' ? 'gpt3' : 'turbo'; 
-    const url = `https://api.nexray.eu.cc/ai/${endpoint}?prompt=${encodeURIComponent(msg)}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const reply = data.result || data.reply || data.response || "Maaf, tidak ada respon yang dikembalikan dari server.";
-        const modelLabel = currentChatModel === 'ollag' ? 'OllaG 1.5 (GPT-3.5)' : 'Ollfux 1.0 (Turbochat)';
-
-        const botMsgHtml = `
-            <div class="flex gap-4 items-start bg-zinc-800/10 p-5 rounded-2xl border border-zinc-800/30">
-                <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-2 rounded-xl text-white shrink-0 shadow-md">
-                    <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-                </div>
-                <div class="space-y-1 w-full">
-                    <p class="font-bold text-xs text-zinc-400">${modelLabel}</p>
-                    <p class="text-xs text-zinc-300 leading-relaxed whitespace-pre-line">${escapeHtml(reply)}</p>
-                </div>
-            </div>
-        `;
-        wrapper.insertAdjacentHTML('beforeend', botMsgHtml);
-        lucide.createIcons(); 
-        
-        const container = document.getElementById('chat-container');
-        if (container) container.scrollTop = container.scrollHeight;
     } catch (error) {
-        console.error('Chat error:', error);
-        alert('Gagal mendapatkan respon dari server AI.');
-    } finally {
-        hideLoading();
+      return res.status(500).json({ error: 'Terjadi kesalahan pada internal Server Proxy' });
     }
-}
+  }
 
-// Keyboard Shortcut listener
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'chat-input') {
-        e.preventDefault();
-        sendChatMessage();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        resetChat();
-    }
-});
+  // Endpoint 2: POST Request untuk Ubah Objek Gambar (gptimage)
+  if (method === 'POST' && req.url.includes('edit-image')) {
+    const form = new IncomingForm();
 
-function resetChat() {
-    const wrapper = document.getElementById('chat-messages-wrapper');
-    if (wrapper) {
-        wrapper.innerHTML = `
-            <div class="flex gap-4 items-start bg-zinc-800/20 p-5 rounded-2xl border border-zinc-800/50">
-                <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-2 rounded-xl text-white shrink-0 shadow-md">
-                    <i data-lucide="bot" class="w-3.5 h-3.5"></i>
-                </div>
-                <div class="space-y-1">
-                    <p class="font-bold text-xs text-zinc-400">Ollaps Flum Intelligence</p>
-                    <p class="text-xs text-zinc-300 leading-relaxed">Memori sesi telah dibersihkan. Mari mulai diskusi baru yang kompleks atau tanyakan apa saja yang Anda butuhkan.</p>
-                </div>
-            </div>
-        `;
-        lucide.createIcons();
-    }
-}
+    return form.parse(req, async (err, fields, files) => {
+      if (err) return res.status(500).json({ error: 'Gagal memproses berkas gambar' });
 
-// --- 4. INPAINT MODIFICATION ENGINE (LIVE API) ---
-async function processImageModification() {
-    const imgInput = document.getElementById('mod-image-input');
-    const paramInput = document.getElementById('mod-param-input').value.trim();
+      try {
+        const file = files.image[0] || files.image;
+        const paramText = fields.param[0] || fields.param;
 
-    if (imgInput.files.length === 0 || !paramInput) {
-        alert('Mohon unggah berkas gambar sumber dan isi instruksi perubahan!');
-        return;
-    }
+        // Siapkan FormData untuk di-forward ke nexray
+        const nexrayForm = new FormData();
+        const fileBuffer = fs.readFileSync(file.filepath);
+        const blob = new Blob([fileBuffer], { type: file.mimetype });
+        
+        nexrayForm.append('image', blob, file.originalFilename);
+        nexrayForm.append('param', paramText);
 
-    showLoading('Melakukan kalkulasi struktur inpaint...');
-    
-    // Menggunakan FormData karena mengirimkan file biner gambar asli ke API
-    const formData = new FormData();
-    formData.append('image', imgInput.files[0]);
-
-    try {
-        const url = `https://api.nexray.eu.cc/ai/inpaint?prompt=${encodeURIComponent(paramInput)}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            body: formData
+        const response = await fetch('https://api.nexray.eu.cc/ai/gptimage', {
+          method: 'POST',
+          body: nexrayForm,
         });
-        const data = await response.json();
-        const resultImgUrl = data.result || data.url || data.image;
 
-        if (resultImgUrl) {
-            const resultDiv = document.getElementById('mod-result');
-            const resultImg = document.getElementById('mod-result-img');
-            resultImg.src = resultImgUrl;
-            resultDiv.classList.remove('hidden');
-        } else {
-            alert('Gagal mendeteksi link gambar hasil modifikasi.');
-        }
-    } catch (error) {
-        console.error('Inpaint error:', error);
-        alert('Terjadi kesalahan saat menghubungi API Inpaint.');
-    } finally {
-        hideLoading();
-    }
-}
+        // Asumsikan responsenya mengembalikan file gambar terproses secara langsung atau payload JSON
+        // Di sini kita return langsung URL-nya
+        return res.status(200).json({ url: 'https://api.nexray.eu.cc/ai/gptimage?param=' + encodeURIComponent(paramText) });
+        
+      } catch (error) {
+        return res.status(500).json({ error: 'Gagal menghubungi server Nexray' });
+      }
+    });
+  }
 
-// --- 5. STUDIO GAMBAR ENGINE (LIVE API) ---
-async function generateImage() {
-    const engine = document.getElementById('gen-image-engine').value;
-    const prompt = document.getElementById('gen-image-prompt').value.trim();
-
-    if (!prompt) {
-        alert('Deskripsi imajinasi/prompt gambar tidak boleh kosong!');
-        return;
-    }
-
-    showLoading(`Menyusun partikel visual via engine ${engine}...`);
-    const url = `https://api.nexray.eu.cc/ai/${engine}?prompt=${encodeURIComponent(prompt)}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const resultImgUrl = data.result || data.url || data.image;
-
-        if (resultImgUrl) {
-            const resultDiv = document.getElementById('gen-result');
-            const resultImg = document.getElementById('gen-result-img');
-            resultImg.src = resultImgUrl;
-            resultDiv.classList.remove('hidden');
-        } else {
-            alert('Gagal memuat link gambar dari arsitektur engine terpilih.');
-        }
-    } catch (error) {
-        console.error('Image generation error:', error);
-        alert('Terjadi gangguan koneksi dengan server Studio Gambar.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// --- 6. LOGO GENERATOR OLLAGO 131 (LIVE 3 LINKS IMAGE PARSER) ---
-async function generateLogo() {
-    const prompt = document.getElementById('logo-prompt').value.trim();
-
-    if (!prompt) {
-        alert('Deskripsi konsep atau nama logo wajib diisi!');
-        return;
-    }
-
-    showLoading('Mentransformasi sketsa vektor logo...');
-    const url = `https://api.nexray.eu.cc/ai/sologo?prompt=${encodeURIComponent(prompt)}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const logoLinks = data.result || data.urls || data.images || data;
-
-        const gridContainer = document.getElementById('logo-grid-container');
-        const resultContainer = document.getElementById('logo-result');
-
-        if (Array.isArray(logoLinks) && logoLinks.length > 0) {
-            gridContainer.innerHTML = ''; 
-
-            logoLinks.forEach((link, index) => {
-                const imgHtml = `
-                    <div class="relative group bg-zinc-950 p-1.5 rounded-xl border border-zinc-800 flex flex-col justify-between">
-                        <img src="${link}" alt="Opsi Logo ${index + 1}" class="w-full h-auto object-contain rounded-lg border border-zinc-900 shadow-md">
-                        <a href="${link}" target="_blank" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-lg">
-                            <span class="text-[9px] bg-zinc-900 text-zinc-200 px-2 py-1 rounded-md font-bold tracking-wide border border-zinc-700">Buka HD</span>
-                        </a>
-                    </div>
-                `;
-                gridContainer.insertAdjacentHTML('beforeend', imgHtml);
-            });
-
-            resultContainer.classList.remove('hidden');
-        } else if (typeof logoLinks === 'string') {
-            gridContainer.innerHTML = `
-                <div class="col-span-3 bg-zinc-950 p-1.5 rounded-xl border border-zinc-800">
-                    <img src="${logoLinks}" class="max-h-56 mx-auto object-contain rounded-lg">
-                </div>
-            `;
-            resultContainer.classList.remove('hidden');
-        } else {
-            alert('Format JSON berubah atau link gambar tidak ditemukan.');
-        }
-    } catch (error) {
-        console.error('Logo generation error:', error);
-        alert('Gagal mengambil data dari API Logo.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// --- 7. AUDIO MUSIC GENERATOR (LIVE SUNO API) ---
-async function generateMusic() {
-    const prompt = document.getElementById('music-prompt').value.trim();
-
-    if (!prompt) {
-        alert('Konsep aransemen atau tema musik wajib diisi!');
-        return;
-    }
-
-    showLoading('Mengonversi teks menjadi gelombang audio harmonis...');
-    const url = `https://api.nexray.eu.cc/ai/suno?prompt=${encodeURIComponent(prompt)}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const audioUrl = data.result || data.url || data.audio;
-
-        if (audioUrl) {
-            const resultDiv = document.getElementById('music-result');
-            const resultAudio = document.getElementById('music-result-audio');
-            
-            resultAudio.src = audioUrl;
-            resultDiv.classList.remove('hidden');
-            resultAudio.load(); 
-        } else {
-            alert('Format JSON berubah atau link audio tidak ditemukan.');
-        }
-    } catch (error) {
-        console.error('Music generation error:', error);
-        alert('Gagal mengambil data dari API Musik.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// UTILITY FUNCTION (Anti-XSS)
-function escapeHtml(text) {
-    if (typeof text !== 'string') return text;
-    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  return res.status(405).json({ error: 'Method Not Allowed' });
 }
