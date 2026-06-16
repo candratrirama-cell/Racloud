@@ -1,203 +1,346 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ollaps Flum - Platform AI Multiguna Gratis Tanpa Batas</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+/**
+ * Ollaps Flum Core Application Engine
+ * Platform AI Multi-fungsi Terintegrasi Nexray API
+ */
+
+// Inisialisasi ikon dari pustaka Lucide
+lucide.createIcons();
+
+// --- STATE MANAGEMENT ---
+let currentChatModel = 'ollag'; // Nilai standar model chat aktif
+let chatHistory = [];           // Array memori untuk menampung konteks percakapan berkelanjutan
+
+// --- TEXTAREA DYNAMIC HEIGHT ---
+// Mengatur tinggi kolom input teks secara dinamis mengikuti panjang ketikan pengguna (gaya ChatGPT)
+const tx = document.getElementById("chat-input");
+if (tx) {
+    tx.addEventListener("input", function() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight) + "px";
+    });
+}
+
+// --- GLOBAL KEYBOARD SHORTCUTS ---
+// Kombinasi tombol Ctrl + K (atau Cmd + K di Mac) untuk memicu fungsi pembersihan memori chat
+window.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        resetChat();
+    }
+});
+
+// --- 1. CORE NAVIGATION / TAB SWITCHER ---
+function switchTab(tabName) {
+    // Sembunyikan seluruh container tab yang ada
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+    });
+    
+    // Tampilkan tab yang dipilih dengan mode flex untuk mempertahankan posisi bottom-docked UI
+    const activeTab = document.getElementById(`tab-${tabName}`);
+    activeTab.classList.remove('hidden');
+    activeTab.classList.add('flex');
+
+    // Kembalikan semua tombol navigasi desktop ke status tidak aktif (default)
+    document.querySelectorAll('.nav-btn-dt').forEach(btn => {
+        btn.className = "nav-btn-dt flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold w-full transition text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200";
+    });
+    // Kembalikan semua tombol navigasi mobile ke status tidak aktif (default)
+    document.querySelectorAll('.nav-btn-mb').forEach(btn => {
+        btn.className = "nav-btn-mb flex flex-col items-center gap-1 text-zinc-500 transition";
+    });
+
+    const dtBtn = document.getElementById(`btn-${tabName}-dt`);
+    const mbBtn = document.getElementById(`btn-${tabName}-mb`);
+    
+    // Skema warna aksen spesifik berdasarkan fitur yang diakses demi estetika UI profesional
+    const colors = { chat: 'emerald', 'image-mod': 'purple', 'image-gen': 'blue', music: 'amber' };
+    const currentColor = colors[tabName];
+
+    // Berikan gaya aktif premium pada elemen tombol navigasi terpilih
+    if(dtBtn) {
+        dtBtn.className = `nav-btn-dt flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold w-full transition bg-zinc-800 text-white border border-zinc-700/40`;
+        dtBtn.querySelector('i').className = `w-4 h-4 text-${currentColor}-400`;
+    }
+    if(mbBtn) {
+        mbBtn.className = `nav-btn-mb flex flex-col items-center gap-1 text-white transition`;
+        mbBtn.querySelector('i').className = `w-4 h-4 text-${currentColor}-400`;
+    }
+}
+
+// --- 2. AI CONVERSATIONAL ASSISTANT FEATURE ---
+function setChatModel(model) {
+    currentChatModel = model;
+    const btnOllag = document.getElementById('model-ollag');
+    const btnOllfux = document.getElementById('model-ollfux');
+
+    // Mutasi visual tab pemilih model chat (OllaG atau Ollfux)
+    if(model === 'ollag') {
+        btnOllag.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition bg-zinc-800 text-white border border-zinc-700/30 shadow-sm";
+        btnOllfux.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition text-zinc-400 hover:text-zinc-200";
+    } else {
+        btnOllfux.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition bg-zinc-800 text-white border border-zinc-700/30 shadow-sm";
+        btnOllag.className = "px-4 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition text-zinc-400 hover:text-zinc-200";
+    }
+}
+
+function resetChat() {
+    // Kosongkan array memori lokal
+    chatHistory = [];
+    const wrapper = document.getElementById('chat-messages-wrapper');
+    
+    // Kembalikan tampilan chat ke kondisi awal (Intro Welcome Message)
+    wrapper.innerHTML = `
+        <div class="flex gap-4 items-start bg-zinc-800/20 p-5 rounded-2xl border border-zinc-800/50">
+            <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-2 rounded-xl text-white shrink-0 shadow-md">
+                <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="space-y-1">
+                <p class="font-bold text-xs text-zinc-400">Ollaps Flum Intelligence</p>
+                <p class="text-xs text-zinc-300 leading-relaxed">Sesi obrolan baru dikosongkan. Ada yang bisa saya bantu sekarang?</p>
+            </div>
+        </div>
+    `;
+    lucide.createIcons();
+    alert('Sesi memori obrolan berhasil dibersihkan.');
+}
+
+async function sendChatMessage() {
+    const inputEl = document.getElementById('chat-input');
+    const text = inputEl.value.trim();
+    if (!text) return; // Validasi cegah pengiriman string kosong
+
+    const messagesWrapper = document.getElementById('chat-messages-wrapper');
+    const chatContainer = document.getElementById('chat-container');
+
+    // Rekam pesan pengguna ke dalam riwayat memori kontekstual
+    chatHistory.push({ role: 'user', content: text });
+
+    // Tampilkan balon chat pengguna ke layar secara elegan
+    const userMsgHtml = `
+        <div class="flex gap-4 items-start max-w-xl justify-end ml-auto">
+            <div class="bg-zinc-800/80 border border-zinc-700/50 px-4 py-3 rounded-2xl shadow-sm">
+                <p class="text-xs text-zinc-200 leading-relaxed">${escapeHtml(text)}</p>
+            </div>
+        </div>
+    `;
+    messagesWrapper.insertAdjacentHTML('beforeend', userMsgHtml);
+    
+    // Reset elemen input text
+    inputEl.value = '';
+    inputEl.style.height = "auto";
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Tampilkan placeholder respons bot dengan status loading "Menganalisis..."
+    const botId = 'bot-' + Date.now();
+    const botPlaceholderHtml = `
+        <div class="flex gap-4 items-start bg-zinc-800/10 p-5 rounded-2xl border border-zinc-800/40" id="${botId}">
+            <div class="bg-zinc-800 p-2 rounded-xl text-zinc-400 shrink-0 border border-zinc-700/30"><i data-lucide="bot" class="w-3.5 h-3.5"></i></div>
+            <div class="flex-1 space-y-1.5">
+                <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">${currentChatModel === 'ollag' ? 'OllaG 1.5' : 'Ollfux 1.0'}</p>
+                <div class="text-xs text-zinc-500 flex items-center gap-1.5 animate-pulse font-medium">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Menganalisis konteks obrolan...
+                </div>
+            </div>
+        </div>
+    `;
+    messagesWrapper.insertAdjacentHTML('beforeend', botPlaceholderHtml);
+    lucide.createIcons();
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // STRATEGI PENYAMBUNG KONTEKS CHAT (Memori Percakapan)
+    // Menyusun string runut yang merangkum percakapan lampau agar dipahami oleh model AI
+    let contextPrompt = "";
+    chatHistory.forEach(msg => {
+        contextPrompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
+    });
+    contextPrompt += "Assistant:"; // Memberi instruksi implisit kepada AI untuk melanjutkan teks
+
+    // Penentuan endpoint API Nexray berdasarkan model pilihan pengguna
+    let url = '';
+    if (currentChatModel === 'ollag') {
+        url = `https://api.nexray.eu.cc/ai/gpt-3.5-turbo?text=${encodeURIComponent(contextPrompt)}`;
+    } else {
+        url = `https://api.nexray.eu.cc/ai/turbochat?text=${encodeURIComponent(contextPrompt)}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
         
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0b0b0c;
+        // Ekstraksi data secara aman mengantisipasi variasi struktur skema JSON dari API
+        let reply = data.result || data.response || data.text || JSON.stringify(data);
+        
+        // Membersihkan prefix 'Assistant:' jika tidak sengaja keluar pada teks mentah respons AI
+        reply = reply.replace(/^(Assistant:\s*|Bot:\s*)/i, '');
+
+        // Rekam balasan bot ke dalam riwayat memori untuk percakapan selanjutnya
+        chatHistory.push({ role: 'assistant', content: reply });
+        
+        // Gantikan status loading pulsing dengan konten teks jawaban asli dari AI
+        document.getElementById(botId).querySelector('.animate-pulse').outerHTML = `
+            <p class="text-xs text-zinc-200 leading-relaxed whitespace-pre-line">${reply}</p>
+        `;
+    } catch (error) {
+        document.getElementById(botId).querySelector('.animate-pulse').outerHTML = `
+            <p class="text-xs text-red-400 font-medium">Gagal memproses respons. Silakan periksa jaringan Anda.</p>
+        `;
+    }
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// --- 3. INPAINT IMAGE MODIFICATION FEATURE (POST METHOD) ---
+async function processImageModification() {
+    const fileInput = document.getElementById('mod-image-input');
+    const paramInput = document.getElementById('mod-param-input');
+    
+    if (fileInput.files.length === 0 || !paramInput.value.trim()) {
+        alert('Harap lengkapi berkas gambar dan instruksi parameter!');
+        return;
+    }
+
+    showLoading('Meregenerasi objek gambar...');
+    
+    // Penyusunan multipart/form-data untuk metode POST ke API
+    const formData = new FormData();
+    formData.append('image', fileInput.files[0]);
+    formData.append('param', paramInput.value.trim());
+
+    try {
+        const response = await fetch('https://api.nexray.eu.cc/ai/gptimage', { 
+            method: 'POST', 
+            body: formData 
+        });
+        
+        const contentType = response.headers.get("content-type");
+        let imageUrl = '';
+
+        // Deteksi bentuk respons (apakah tautan JSON atau stream biner gambar langsung)
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json();
+            imageUrl = data.result || data.url;
+        } else {
+            const blob = await response.blob();
+            imageUrl = URL.createObjectURL(blob);
         }
 
-        /* Animasi halu/glow efek di background */
-        .glow-bg {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(0,0,0,0) 70%);
-            top: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 0;
-            pointer-events: none;
+        if(imageUrl) {
+            document.getElementById('mod-result-img').src = imageUrl;
+            document.getElementById('mod-result').classList.remove('hidden');
+        } else {
+            alert('Gagal mendistribusikan modifikasi media.');
         }
-    </style>
-</head>
-<body class="text-zinc-200 antialiased overflow-x-hidden">
+    } catch (error) {
+        alert('Koneksi sistem ke server modifikasi terputus.');
+    } finally {
+        hideLoading();
+    }
+}
 
-    <!-- Efek Glow Latar Belakang -->
-    <div class="glow-bg"></div>
+// --- 4. GENERATIVE STUDIO IMAGE FEATURE ---
+async function generateImage() {
+    const engine = document.getElementById('gen-image-engine').value;
+    const prompt = document.getElementById('gen-image-prompt').value.trim();
 
-    <!-- 1. NAVIGATION BAR -->
-    <nav class="relative z-10 border-b border-zinc-900 bg-[#0b0b0c]/80 backdrop-blur-md sticky top-0">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center gap-2.5">
-                <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 p-2 rounded-xl text-black font-bold shadow-lg shadow-emerald-500/10">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-zinc-950"></i>
-                </div>
-                <div>
-                    <span class="text-sm font-bold text-white tracking-tight">Ollaps Flum</span>
-                    <span class="text-[9px] text-emerald-400 font-bold block -mt-1 tracking-wider uppercase">Olla Ecosystem</span>
-                </div>
-            </div>
+    if (!prompt) {
+        alert('Deskripsi prompt wajib diisi!');
+        return;
+    }
 
-            <!-- Nav Link (Desktop Only) -->
-            <div class="hidden md:flex items-center gap-8 text-xs font-semibold text-zinc-400">
-                <a href="#fitur" class="hover:text-white transition">Fitur Unggulan</a>
-                <a href="#kenapa-olla" class="text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Kenapa Olla?
-                </a>
-                <a href="#teknologi" class="hover:text-white transition">Infrastruktur</a>
-            </div>
+    showLoading('Melakukan rendering visualisasi...');
+    let url = `https://api.nexray.eu.cc/ai/${engine}?prompt=${encodeURIComponent(prompt)}`;
 
-            <!-- Call to Action Button -->
-            <div>
-                <a href="Dashboard.html" class="inline-flex items-center gap-2 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-white/5">
-                    Mulai Sekarang <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                </a>
-            </div>
-        </div>
-    </nav>
+    try {
+        const response = await fetch(url);
+        const contentType = response.headers.get("content-type");
+        let resultImgUrl = '';
 
-    <!-- 2. HERO SECTION -->
-    <header class="relative z-10 max-w-4xl mx-auto text-center px-4 pt-20 pb-16 md:pt-28 md:pb-24 space-y-6">
-        <div class="inline-flex items-center gap-2 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full text-[10px] font-bold text-emerald-400 uppercase tracking-widest mx-auto">
-            <span class="flex h-2 w-2 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            Platform AI Masa Depan
-        </div>
-        <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
-            Satu Ekosistem Pintar.<br>
-            <span class="bg-gradient-to-r from-emerald-400 via-teal-200 to-emerald-500 bg-clip-text text-transparent">Multi-Fungsi Tanpa Batas.</span>
-        </h1>
-        <p class="text-zinc-400 text-xs md:text-sm max-w-xl mx-auto leading-relaxed">
-            Akses Chat Bot cerdas, generator musik, hingga manipulasi objek gambar AI tercanggih di dunia langsung dari satu dasbor terpadu.
-        </p>
-        <div class="pt-4 flex flex-col sm:flex-row justify-center items-center gap-3">
-            <a href="Dashboard.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
-                <i data-lucide="terminal" class="w-4 h-4"></i> Masuk Ke Workspace AI
-            </a>
-            <a href="#fitur" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-300 font-bold text-xs px-6 py-3.5 rounded-xl transition">
-                Jelajahi Fitur
-            </a>
-        </div>
-    </header>
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json();
+            resultImgUrl = data.result || data.url;
+        } else {
+            const blob = await response.blob();
+            resultImgUrl = URL.createObjectURL(blob);
+        }
 
-    <!-- 3. MAIN HIGHLIGHT SECTION: "KENAPA HARUS OLLA??" -->
-    <section id="kenapa-olla" class="relative z-10 max-w-5xl mx-auto px-4 py-16">
-        <div class="bg-gradient-to-b from-zinc-900/80 to-zinc-950 border border-zinc-800/60 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
-            <!-- Hiasan Efek Cahaya Belakang -->
-            <div class="absolute -right-20 -top-20 w-60 h-60 bg-emerald-500/10 blur-[80px] pointer-events:none;"></div>
-            
-            <div class="grid md:grid-cols-5 gap-8 items-center">
-                <div class="md:col-span-3 space-y-4">
-                    <div class="text-emerald-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                        <i data-lucide="help-circle" class="w-4 h-4"></i> KEUNGGULAN UTAMA
-                    </div>
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                        Kenapa Harus Olla?? 🤔
-                    </h2>
-                    <p class="text-zinc-300 text-sm leading-relaxed font-medium">
-                        Karena di Olla, kamu bisa menggunakan teknologi AI premium berspesifikasi tinggi <span class="text-white font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/40 text-emerald-400">secara GRATIS tanpa batasan kuota harian!</span>
-                    </p>
-                    <p class="text-zinc-400 text-xs leading-relaxed">
-                        Kami percaya bahwa kecerdasan buatan harus bisa diakses oleh siapa saja—baik untuk kebutuhan belajar, bekerja, ataupun berkreasi seni—tanpa perlu berlangganan kartu kredit atau terganggu limit token.
-                    </p>
-                </div>
-                <div class="md:col-span-2 grid grid-cols-1 gap-3 w-full">
-                    <div class="bg-[#141416]/60 border border-zinc-800 p-4 rounded-xl flex items-start gap-3.5">
-                        <div class="bg-emerald-950 p-2 rounded-lg text-emerald-400 shrink-0"><i data-lucide="infinity" class="w-4 h-4"></i></div>
-                        <div>
-                            <h4 class="text-xs font-bold text-white mb-0.5">100% Unlimited Access</h4>
-                            <p class="text-[11px] text-zinc-500">Kirim pesan dan generate media sebanyak yang Anda mau.</p>
-                        </div>
-                    </div>
-                    <div class="bg-[#141416]/60 border border-zinc-800 p-4 rounded-xl flex items-start gap-3.5">
-                        <div class="bg-emerald-950 p-2 rounded-lg text-emerald-400 shrink-0"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
-                        <div>
-                            <h4 class="text-xs font-bold text-white mb-0.5">Tanpa Biaya Tersembunyi</h4>
-                            <p class="text-[11px] text-zinc-500">Tidak perlu skema premium, trial habis, atau paywall yang mengganggu.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        if (resultImgUrl) {
+            document.getElementById('gen-result-img').src = resultImgUrl;
+            document.getElementById('gen-result').classList.remove('hidden');
+        } else {
+            alert('Gagal memuat aset gambar dari repositori.');
+        }
+    } catch (error) {
+        alert('Gangguan pada arsitektur server gambar.');
+    } finally {
+        hideLoading();
+    }
+}
 
-    <!-- 4. CAPABILITIES / FITUR UTAMA -->
-    <section id="fitur" class="relative z-10 max-w-5xl mx-auto px-4 py-12 space-y-12">
-        <div class="text-center space-y-2">
-            <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Multi-Functional Stack</h3>
-            <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">Kekuatan Multi-Sistem AI dalam Genggaman</h2>
-        </div>
+// --- 5. AUDIO SUNO MUSIC GENERATOR FEATURE ---
+async function generateMusic() {
+    const prompt = document.getElementById('music-prompt').value.trim();
+    if(!prompt) {
+        alert('Masukkan deskripsi aransemen musik!');
+        return;
+    }
 
-        <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- Box 1: Chat AI -->
-            <div class="bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl space-y-4 hover:border-emerald-500/30 transition">
-                <div class="w-9 h-9 bg-emerald-950 rounded-xl flex items-center justify-center text-emerald-400"><i data-lucide="message-square" class="w-4 h-4"></i></div>
-                <div class="space-y-1">
-                    <h4 class="text-xs font-bold text-white">AI Assistant</h4>
-                    <p class="text-[11px] text-zinc-400 leading-relaxed">Dilengkapi model OllaG 1.5 (GPT 3.5 Turbo) & Ollfux 1.0 yang dibekali memori kontekstual bersambung.</p>
-                </div>
-            </div>
-            <!-- Box 2: Object Mod -->
-            <div class="bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl space-y-4 hover:border-purple-500/30 transition">
-                <div class="w-9 h-9 bg-purple-950 rounded-xl flex items-center justify-center text-purple-400"><i data-lucide="blocks" class="w-4 h-4"></i></div>
-                <div class="space-y-1">
-                    <h4 class="text-xs font-bold text-white">Ubah Objek Gambar</h4>
-                    <p class="text-[11px] text-zinc-400 leading-relaxed">Ganti baju, tambah aksesoris, atau manipulasi elemen foto apa saja hanya dengan instruksi teks instruktif.</p>
-                </div>
-            </div>
-            <!-- Box 3: Studio Gambar -->
-            <div class="bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl space-y-4 hover:border-blue-500/30 transition">
-                <div class="w-9 h-9 bg-blue-950 rounded-xl flex items-center justify-center text-blue-400"><i data-lucide="palette" class="w-4 h-4"></i></div>
-                <div class="space-y-1">
-                    <h4 class="text-xs font-bold text-white">Studio Gambar AI</h4>
-                    <p class="text-[11px] text-zinc-400 leading-relaxed">Render imajinasi melalui model Ollagama 2.1 (Magicstudio) atau arsitektur Ollagama 5.3 Orcasta (Ideogram).</p>
-                </div>
-            </div>
-            <!-- Box 4: Music Gen -->
-            <div class="bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl space-y-4 hover:border-amber-500/30 transition">
-                <div class="w-9 h-9 bg-amber-950 rounded-xl flex items-center justify-center text-amber-400"><i data-lucide="music-4" class="w-4 h-4"></i></div>
-                <div class="space-y-1">
-                    <h4 class="text-xs font-bold text-white">Generator Musik</h4>
-                    <p class="text-[11px] text-zinc-400 leading-relaxed">Ciptakan aransemen lagu berkualitas tinggi berkat sokongan core audio engine terkemuka Ollmu 1.0 Suno.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    showLoading('Mengonversi partitur audio...');
+    const url = `https://api.nexray.eu.cc/ai/suno?prompt=${encodeURIComponent(prompt)}`;
 
-    <!-- 5. INFRASTRUCTURE PARTNERSHIP -->
-    <section id="teknologi" class="max-w-4xl mx-auto px-4 py-16 text-center border-t border-zinc-900">
-        <p class="text-[10px] font-bold text-zinc-500 tracking-widest uppercase mb-4">Didukung Oleh Infrastruktur Cloud Terbaik</p>
-        <div class="flex justify-center items-center gap-6 text-zinc-400 font-bold text-xs tracking-wider">
-            <span class="bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800/50">NEXRAY CORE API</span>
-            <span class="text-zinc-600">&bull;</span>
-            <span class="bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-zinc-800/50">VERCEL NETWORKS</span>
-        </div>
-    </section>
+    try {
+        const response = await fetch(url);
+        const contentType = response.headers.get("content-type");
+        let audioUrl = '';
 
-    <!-- 6. FOOTER -->
-    <footer class="bg-[#080809] border-t border-zinc-900 text-zinc-600 text-[11px] py-6 text-center">
-        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <p>&copy; 2026 Ollaps Flum Ecosystem. Dilindungi Hak Cipta.</p>
-            <p class="font-medium text-zinc-500">Created with Passion for Democratizing AI.</p>
-        </div>
-    </footer>
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json();
+            audioUrl = data.result || data.audio_url || data.url; 
+        } else {
+            const blob = await response.blob();
+            audioUrl = URL.createObjectURL(blob);
+        }
 
-    <script>
-        // Jalankan render icon Lucide agar tampil rapi
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+        if(audioUrl) {
+            const audioEl = document.getElementById('music-result-audio');
+            audioEl.src = audioUrl;
+            document.getElementById('music-result').classList.remove('hidden');
+            audioEl.load(); // Refresh komponen pemutar HTML5 audio
+        } else {
+            alert('Format audio tidak valid atau link rusak.');
+        }
+    } catch (error) {
+        alert('Gagal menghubungi core audio engine.');
+    } finally {
+        hideLoading();
+    }
+}
+
+// --- GLOBAL HELPERS / UTILITIES ---
+function showLoading(text) {
+    document.getElementById('loading-text').innerText = text;
+    document.getElementById('loading-overlay').classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loading-overlay').classList.add('hidden');
+}
+
+function escapeHtml(string) {
+    // Fungsi sanitasi teks untuk mencegah ancaman XSS saat me-render input user ke dokumen HTML
+    return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Interseptor tombol keyboard Enter pada textarea chat
+document.getElementById('chat-input').addEventListener('keydown', function(e) {
+    // Jalankan pengiriman pesan hanya jika menekan Enter biasa (bukan Shift + Enter)
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+    }
+});
